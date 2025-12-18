@@ -1,0 +1,4 @@
+build/
+bootloader/gnu-efi
+UEFI/edk2-bin
+
