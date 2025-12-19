@@ -1,4 +1,5 @@
 build/
 bootloader/gnu-efi
-UEFI/edk2-bin
+# UEFI/edk2-bin
+UEFI/OVMF.4m.fd
 

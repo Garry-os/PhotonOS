@@ -1,4 +1,4 @@
-UEFI_FOLDER = ./UEFI/edk2-bin/x64
+UEFI_FOLDER = ./UEFI
 
 .PHONY: all disk bootloader uefi-files run clean always
 
@@ -19,8 +19,7 @@ uefi-files:
 	@ chmod +x ./UEFI/clone-uefi.sh
 	@ ./UEFI/clone-uefi.sh
 	@ echo "Copying UEFI files..."
-	@ cp $(UEFI_FOLDER)/code.fd build/UEFI/code.fd
-	@ cp $(UEFI_FOLDER)/vars.fd build/UEFI/vars.fd
+	@ cp $(UEFI_FOLDER)/OVMF.4m.fd build/UEFI/OVMF.fd
 
 always:
 	@ mkdir -p build
@@ -32,9 +31,7 @@ clean:
 	@ rm -rf UEFI/edk2-bin
 
 run:
-	qemu-system-x86_64 -machine q35 \
-		-drive if=pflash,format=raw,readonly=on,file=build/UEFI/code.fd \
-		-drive if=pflash,format=raw,file=build/UEFI/vars.fd \
+	qemu-system-x86_64 -machine q35 -bios build/UEFI/OVMF.fd \
 		-drive format=raw,file=build/disk.img
 
 
