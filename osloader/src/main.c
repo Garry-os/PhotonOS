@@ -1,0 +1,4 @@
+void efi_main()
+{
+
+}
