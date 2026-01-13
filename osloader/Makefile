@@ -1,5 +1,5 @@
 CC = x86_64-w64-mingw32-gcc
-CFLAGS = -ffreestanding -Wall -Wextra -mno-red-zone -I src -I src/inc
+CFLAGS = -ffreestanding -Wall -Wextra -mno-red-zone -I src -I src/inc -DGNU_EFI_USE_MS_ABI
 
 LD = x86_64-w64-mingw32-gcc
 LDFLAGS = -nostdlib -Wl,-dll -shared -Wl,--subsystem,10 -e efi_main
