@@ -1,5 +1,11 @@
 # Installing instructions
 
+## Dependencies
+- MINGW toolchain
+- GNU make
+- QEMU (For emulator)
+- wget
+
 ## Compile & run
 To compile, run: `make`
 The output will be in the `build/disk.img`
