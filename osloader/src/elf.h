@@ -16,6 +16,8 @@
 #define EM_X86_64	62	/* AMD x86-64 architecture */
 #define EV_CURRENT	1		/* Current version */
 
+#define PT_LOAD		1		/* Loadable program segment */
+
 // ELF Data types
 /* Type for a 16-bit quantity.  */
 typedef uint16_t Elf32_Half;
