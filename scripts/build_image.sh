@@ -13,4 +13,5 @@ mkfs.fat -F 32 $IMAGE_PATH
 mmd -i $IMAGE_PATH ::/EFI
 mmd -i $IMAGE_PATH ::/EFI/BOOT
 mcopy -i $IMAGE_PATH ../build/osloader/BOOTX64.EFI ::/EFI/BOOT
+mcopy -i $IMAGE_PATH ../build/kernel/kernel.bin ::/
 

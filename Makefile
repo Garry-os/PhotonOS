@@ -1,10 +1,10 @@
 BUILD_DIR = build
 
-.PHONY: all osloader clean run
+.PHONY: all osloader kernel clean run
 
 all: disk
 
-disk: osloader
+disk: osloader kernel
 	@ chmod +x ./scripts/build_image.sh
 	@ ./scripts/build_image.sh
 
@@ -17,6 +17,8 @@ ovmf-prebuilts:
 
 osloader: 
 	@ $(MAKE) -C osloader
+kernel:
+	@ $(MAKE) -C kernel
 
 clean:
 	@ echo "Cleaning up..."
