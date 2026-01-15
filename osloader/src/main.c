@@ -98,6 +98,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 {
 	// Setup global vars
 	SetupGlobalVars(ImageHandle, SystemTable);
+	
+	// Clear screen
+	SystemTable->ConOut->ClearScreen(SystemTable->ConOut);
 
 	print(L"Osloader v0.0.1\r\n");
 	print(L"Press any key to boot...\r\n");
