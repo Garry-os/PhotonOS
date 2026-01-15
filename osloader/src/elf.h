@@ -53,7 +53,7 @@ typedef struct
   Elf64_Xword	p_filesz;		/* Segment size in file */
   Elf64_Xword	p_memsz;		/* Segment size in memory */
   Elf64_Xword	p_align;		/* Segment alignment */
-} Elf64_Phdr;
+} __attribute__((packed)) Elf64_Phdr;
 
 #define EI_NIDENT (16)
 
@@ -73,5 +73,5 @@ typedef struct
   Elf64_Half	e_shentsize;		/* Section header table entry size */
   Elf64_Half	e_shnum;		/* Section header table entry count */
   Elf64_Half	e_shstrndx;		/* Section header string table index */
-} Elf64_Ehdr;
+} __attribute__((packed)) Elf64_Ehdr;
 
