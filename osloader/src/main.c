@@ -113,7 +113,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	KernelEntry entry = (KernelEntry)header.e_entry;
 	entry(info);
 
-	while (1);
+	// Should never reach here
 
 	return EFI_SUCCESS; // Completed successfully
 }
