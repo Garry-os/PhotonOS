@@ -29,5 +29,5 @@ run:
 	qemu-system-x86_64 -drive if=pflash,format=raw,unit=0,file=build/OVMFbin/code.fd,readonly=on \
 		-drive if=pflash,format=raw,unit=1,file=build/OVMFbin/vars.fd \
 		-drive format=raw,file=build/disk.img \
-		-net none -machine q35
+		-net none -machine q35 -debugcon stdio
 

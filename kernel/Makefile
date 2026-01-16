@@ -5,6 +5,8 @@ CFLAGS = -ffreestanding -mno-red-zone -Wall -Wextra -fno-stack-protector \
 LD = x86_64-elf-gcc
 LDFLAGS = -nostdlib -T linker.ld
 
+CFLAGS += -I src -I src/arch
+
 BUILD_DIR = ../build
 
 C_SOURCES := $(shell find src -name "*.c")
