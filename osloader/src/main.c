@@ -2,6 +2,7 @@
 #include "elf.h"
 #include "file.h"
 #include "global.h"
+#include "gop.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -93,12 +94,21 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 		}
 	}
 
+	// Get GOP info
+	Fb_Info* fbInfo = GetGOPInfo();
+	if (fbInfo == NULL)
+	{
+		print(L"Failed to get GOP information\r\n");
+		PressKeyToReboot();
+	}
+
 	print(L"Kernel loaded...\r\n");
 
 	// Setup boot info
 	BootInfo info;
 	info.magic = (uint32_t)BOOT_MAGIC;
 	info.kernelPhysicalAddress = phdrs->p_paddr;
+	info.fbInfo = *fbInfo;
 
 	KernelEntry entry = (KernelEntry)header.e_entry;
 	entry(info);
