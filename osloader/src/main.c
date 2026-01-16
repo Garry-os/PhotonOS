@@ -45,7 +45,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	print(L"Booting...\r\n");
 
 	// Load the kernel file
-	EFI_FILE* KernelFile = LoadFile(NULL, L"\\kernel.bin");
+	EFI_FILE* KernelFile = LoadFile(NULL, L"\\EFI\\BOOT\\kernel.bin");
 	if (KernelFile == NULL)
 	{
 		print(L"Failed to load kernel file!\r\n");
