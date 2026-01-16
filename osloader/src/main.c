@@ -1,60 +1,15 @@
 #include <efi.h>
 #include "elf.h"
+#include "file.h"
 #include "global.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <osloader.h>
 
-// Since we don't have the GNU EFI lib
-EFI_GUID EfiLoadedImageProtocolGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
-EFI_GUID EfiSimpleFileSystemProtocolGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
-EFI_GUID gEfiFileInfoGuid = EFI_FILE_INFO_ID;
-
 void print(CHAR16* str)
 {
 	g_SystemTable->ConOut->OutputString(g_SystemTable->ConOut, str);
-}
-
-EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path)
-{
-	EFI_FILE* File;
-
-	EFI_LOADED_IMAGE_PROTOCOL* ImageProtocol;
-	g_SystemTable->BootServices->HandleProtocol(g_ImageHandle, &EfiLoadedImageProtocolGuid, (void**)&ImageProtocol);
-
-	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* FileSystem;
-	g_SystemTable->BootServices->HandleProtocol(ImageProtocol->DeviceHandle, &EfiSimpleFileSystemProtocolGuid, (void**)&FileSystem);
-
-	if (Directory == NULL)
-	{
-		FileSystem->OpenVolume(FileSystem, &Directory);
-	}
-
-	EFI_STATUS status = Directory->Open(Directory, &File, Path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
-
-	if (EFI_ERROR(status))
-	{
-		return NULL;
-	}
-
-	return File;
-}
-
-int memcmp(const void* a, const void* b, size_t num)
-{
-	const uint8_t* u8A = (uint8_t*)a;
-	const uint8_t* u8B = (uint8_t*)b;
-
-	for (size_t i = 0; i < num; i++)
-	{
-		if (u8A[i] != u8B[i])
-		{
-			return u8A[i] - u8B[i];
-		}
-	}
-
-	return 0;
 }
 
 void PressKeyToReboot()
@@ -68,21 +23,6 @@ void PressKeyToReboot()
 
 	// Should never reach
 	__builtin_unreachable();
-}
-
-bool VerifyElfHeader(Elf64_Ehdr header)
-{
-	if (memcmp(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
-		header.e_ident[EI_CLASS] != ELFCLASS64 ||
-		header.e_ident[EI_DATA] != ELFDATA2LSB ||
-		header.e_type != ET_EXEC ||
-		header.e_machine != EM_X86_64 ||
-		header.e_version != EV_CURRENT)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 typedef void (*KernelEntry)(BootInfo info);

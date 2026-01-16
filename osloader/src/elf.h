@@ -75,3 +75,5 @@ typedef struct
   Elf64_Half	e_shstrndx;		/* Section header string table index */
 } __attribute__((packed)) Elf64_Ehdr;
 
+bool VerifyElfHeader(Elf64_Ehdr header);
+
