@@ -3,6 +3,7 @@
 //
 #include "debug.h"
 #include <x86_64/system.h>
+#include <utils/printf.h>
 
 #define SERIAL_PORT 0xE9
 
@@ -18,5 +19,16 @@ void dbg_puts(const char* str)
 		dbg_putc(*str);
 		str++;
 	}
+}
+
+void dbg_printf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+
+	printf_internal(dbg_putc, fmt, args);
+
+	va_end(args);
+
 }
 

@@ -6,6 +6,8 @@
 
 void main()
 {
-	dbg_puts("Hello World from kernel!\n");
+	dbg_printf("Hello World from kernel!\n");
+	dbg_printf("0x%x\n", 0x123);
 	while (1);
 }
+
