@@ -104,6 +104,16 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 
 	print(L"Kernel loaded...\r\n");
 
+	// Get UEFI memory map
+	EFI_MEMORY_DESCRIPTOR* mMap = NULL;
+	UINTN mMapSize, mMapKey;
+	UINTN mDescSize;
+	UINT32 mDescVersion;
+
+	SystemTable->BootServices->GetMemoryMap(&mMapSize, mMap, &mMapKey, &mDescSize, &mDescVersion);
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, mMapSize, (void**)&mMap);
+	SystemTable->BootServices->GetMemoryMap(&mMapSize, mMap, &mMapKey, &mDescSize, &mDescVersion);
+
 	// Setup boot info
 	BootInfo info;
 	info.magic = (uint32_t)BOOT_MAGIC;
@@ -111,6 +121,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	info.fbInfo = *fbInfo;
 
 	KernelEntry entry = (KernelEntry)header.e_entry;
+	SystemTable->BootServices->ExitBootServices(ImageHandle, mMapKey);
 	entry(info);
 
 	// Should never reach here
