@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <osloader.h>
 
 EFI_HANDLE g_ImageHandle;
 EFI_SYSTEM_TABLE* g_SystemTable;
@@ -92,7 +93,7 @@ bool VerifyElfHeader(Elf64_Ehdr header)
 	return true;
 }
 
-typedef void (*KernelEntry)();
+typedef void (*KernelEntry)(BootInfo info);
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 {
@@ -162,8 +163,13 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 
 	print(L"Kernel loaded...\r\n");
 
+	// Setup boot info
+	BootInfo info;
+	info.magic = (uint32_t)BOOT_MAGIC;
+	info.kernelPhysicalAddress = phdrs->p_paddr;
+
 	KernelEntry entry = (KernelEntry)header.e_entry;
-	entry();
+	entry(info);
 
 	while (1);
 
