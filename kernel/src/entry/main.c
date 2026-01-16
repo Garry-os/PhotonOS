@@ -2,9 +2,10 @@
 // Kernel starting entry file
 //
 #include <x86_64/system.h>
+#include <qemu/debug.h>
 
 void main()
 {
-	x86_outb(0xE9, 'e');
+	dbg_puts("Hello World from kernel!\n");
 	while (1);
 }
