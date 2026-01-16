@@ -1,23 +1,15 @@
 #include <efi.h>
 #include "elf.h"
+#include "global.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <osloader.h>
 
-EFI_HANDLE g_ImageHandle;
-EFI_SYSTEM_TABLE* g_SystemTable;
-
 // Since we don't have the GNU EFI lib
 EFI_GUID EfiLoadedImageProtocolGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
 EFI_GUID EfiSimpleFileSystemProtocolGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 EFI_GUID gEfiFileInfoGuid = EFI_FILE_INFO_ID;
-
-void SetupGlobalVars(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
-{
-	g_ImageHandle = ImageHandle;
-	g_SystemTable = SystemTable;
-}
 
 void print(CHAR16* str)
 {
@@ -98,7 +90,7 @@ typedef void (*KernelEntry)(BootInfo info);
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 {
 	// Setup global vars
-	SetupGlobalVars(ImageHandle, SystemTable);
+	SetupGlobalVars(SystemTable, ImageHandle);
 	
 	// Clear screen
 	SystemTable->ConOut->ClearScreen(SystemTable->ConOut);
