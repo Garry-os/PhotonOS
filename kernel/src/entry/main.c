@@ -11,7 +11,7 @@ void main()
 	if (bootInfo->magic != BOOT_MAGIC)
 	{
 		dbg_printf("Invalid boot magic!\n");
-		while (1);
+		kpanic();
 	}
 
 	dbg_printf("Hello World from kernel!\n");
@@ -19,6 +19,6 @@ void main()
 
 	dbg_printf("Boot info magic: 0x%llx\n", bootInfo->magic);
 
-	while (1);
+	khalt();
 }
 

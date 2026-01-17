@@ -12,3 +12,23 @@ uint8_t x86_inb(uint16_t port)
 	return result;
 }
 
+// Kernel panic!
+void kpanic()
+{
+	asm volatile ("cli"); // Disable interrupts
+	while (1)
+	{
+		asm volatile ("hlt");
+	}
+}
+
+// Halt using a loop
+// Can be escaped by an interrupt
+void khalt()
+{
+	while (1)
+	{
+		asm volatile ("hlt");
+	}
+}
+
