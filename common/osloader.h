@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #define BOOT_MAGIC 0x1122334455
+#define BOOTINFO_ADDRESS 0x10000
 
 typedef struct
 {
@@ -18,7 +19,7 @@ typedef struct
 
 typedef struct
 {
-	uint32_t magic; // Boot info magic code
+	uint64_t magic; // Boot info magic code
 	uint64_t kernelPhysicalAddress;
 
 	// Framebuffer info

@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <osloader.h>
 
+
 void print(CHAR16* str)
 {
 	g_SystemTable->ConOut->OutputString(g_SystemTable->ConOut, str);
@@ -26,7 +27,8 @@ void PressKeyToReboot()
 	__builtin_unreachable();
 }
 
-typedef void (*KernelEntry)(BootInfo info);
+typedef void (*KernelEntry)();
+BootInfo* info = (BootInfo*)BOOTINFO_ADDRESS;
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 {
@@ -115,14 +117,13 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	SystemTable->BootServices->GetMemoryMap(&mMapSize, mMap, &mMapKey, &mDescSize, &mDescVersion);
 
 	// Setup boot info
-	BootInfo info;
-	info.magic = (uint32_t)BOOT_MAGIC;
-	info.kernelPhysicalAddress = phdrs->p_paddr;
-	info.fbInfo = *fbInfo;
+	info->magic = (uint64_t)BOOT_MAGIC;
+	info->kernelPhysicalAddress = phdrs->p_paddr;
+	info->fbInfo = *fbInfo;
 
 	KernelEntry entry = (KernelEntry)header.e_entry;
 	SystemTable->BootServices->ExitBootServices(ImageHandle, mMapKey);
-	entry(info);
+	entry();
 
 	// Should never reach here
 
