@@ -7,7 +7,7 @@
 
 void main()
 {
-	BootInfo* bootInfo = (BootInfo*)0x10000;
+	BootInfo* bootInfo = (BootInfo*)BOOTINFO_ADDRESS;
 	if (bootInfo->magic != BOOT_MAGIC)
 	{
 		dbg_printf("Invalid boot magic!\n");
