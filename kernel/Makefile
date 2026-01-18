@@ -5,7 +5,7 @@ CFLAGS = -ffreestanding -mno-red-zone -Wall -Wextra -fno-stack-protector \
 LD = x86_64-elf-gcc
 LDFLAGS = -nostdlib -T linker.ld
 
-CFLAGS += -I src -I src/arch -I ../common
+CFLAGS += -I src -I src/arch -I ../common -I src/graphical
 
 BUILD_DIR = ../build
 

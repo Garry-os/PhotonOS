@@ -119,7 +119,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 	// Setup boot info
 	info->magic = (uint64_t)BOOT_MAGIC;
 	info->kernelPhysicalAddress = phdrs->p_paddr;
-	info->fbInfo = *fbInfo;
+	info->fbInfo = fbInfo;
 
 	KernelEntry entry = (KernelEntry)header.e_entry;
 	SystemTable->BootServices->ExitBootServices(ImageHandle, mMapKey);

@@ -23,7 +23,7 @@ typedef struct
 	uint64_t kernelPhysicalAddress;
 
 	// Framebuffer info
-	Fb_Info fbInfo;
+	Fb_Info* fbInfo;
 } BootInfo;
 
 
