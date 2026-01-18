@@ -5,6 +5,8 @@
 - GNU make
 - QEMU (For emulator)
 - wget
+- mkfs
+- mtools
 
 ## Compile & run
 To compile, run: `make`
