@@ -6,7 +6,7 @@ It is included with a bootloader named 'osloader'. It is designed to be an UEFI 
 It uses a stripped down version of the GNU-EFI headers. The actual build systems aren't from GNU EFI, it is all implemented from scratch using the mingw64 compiler.
 
 ### Kernel
-The kernel will be starting to develop when the osloader is finished.
+The kernel has started being developed. Though it is in its early stage with very little features.
 
 ## Installing
 For installing instructions, go to `docs/install.md`
