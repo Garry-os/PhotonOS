@@ -30,7 +30,7 @@ void InitBootInfo()
 	// Check if limine actually gave us 4 levels page table
 	if (liminePagingRes->mode != LIMINE_PAGING_MODE_X86_64_4LVL)
 	{
-		dbg_puts("[Kernel] 4 levels page table isn't avaliable\n");
+		dbg_printf("[Kernel] 4 levels page table isn't avaliable\n");
 		panic();
 	}
 

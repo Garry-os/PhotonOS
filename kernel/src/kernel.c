@@ -21,7 +21,7 @@ void start(void)
 
 	InitBootInfo();
 
-	dbg_puts("Hello World!\n");
+	dbg_printf("Hello World! 0x%x\n", 0x123);
 
 	halt();
 }

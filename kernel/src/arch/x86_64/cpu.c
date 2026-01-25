@@ -18,7 +18,7 @@ uint8_t x86_inb(uint16_t port)
 
 void panic()
 {
-	dbg_puts("Kernel panic!\n");
+	dbg_printf("Kernel panic!\n");
 	asm volatile ("cli");
 	while (1)
 	{
