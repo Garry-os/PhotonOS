@@ -8,6 +8,7 @@
 #include <x86_64/cpu.h>
 #include <x86_64/gdt.h>
 #include <fb.h>
+#include <utils/psf.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -27,6 +28,9 @@ void start(void)
 	InitFb();
 	FbClear(RGB(0, 0, 0));
 	DrawRect(100, 100, 50, 50, RGB(255, 10, 100));
+
+	PsfLoadDefaultFont();
+	PsfDrawChar(250, 300, RGB(255, 255, 255), RGB(0, 0, 0), 'G');
 
 	// Initialized architecture-related stuff
 	InitGDT();

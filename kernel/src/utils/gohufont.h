@@ -3,5 +3,5 @@
 // Gohufont
 // https://font.gohu.org
 
-uint8_t g_gohufont[];
+extern uint8_t g_gohufont[];
 
