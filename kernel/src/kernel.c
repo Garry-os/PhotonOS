@@ -3,9 +3,8 @@
 //
 
 #include <limine.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <boot.h>
+#include <qemu/print.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -25,6 +24,8 @@ void start(void)
 	}
 
 	InitBootInfo();
+
+	dbg_puts("Hello World!\n");
 
 	halt();
 }
