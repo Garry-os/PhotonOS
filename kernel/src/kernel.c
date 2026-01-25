@@ -25,6 +25,8 @@ void start(void)
 
 	// Initialize graphics-related stuff
 	InitFb();
+	FbClear(RGB(0, 0, 0));
+	DrawRect(100, 100, 50, 50, RGB(255, 10, 100));
 
 	// Initialized architecture-related stuff
 	InitGDT();

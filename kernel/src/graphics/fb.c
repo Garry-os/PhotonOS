@@ -34,3 +34,31 @@ void InitFb()
 	dbg_printf("[Framebuffer] resolution: %dx%dx%d\n", g_FbInfo.width, g_FbInfo.height, g_FbInfo.pitch);
 }
 
+void PlotPixel(uint32_t x, uint32_t y, uint32_t color)
+{
+	uint32_t offset = (y * g_FbInfo.pitch) + (x * 4);
+	fbBase[offset / 4] = color;
+}
+
+void DrawRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+{
+	for (uint32_t yy = 0; yy < h; yy++)
+	{
+		for (uint32_t xx = 0; xx < w; xx++)
+		{
+			PlotPixel(xx + x, yy + y, color);
+		}
+	}
+}
+
+void FbClear(uint32_t color)
+{
+	for (uint32_t y = 0; y < g_FbInfo.height; y++)
+	{
+		for (uint32_t x = 0; x < g_FbInfo.width; x++)
+		{
+			PlotPixel(x, y, color);
+		}
+	}
+}
+
