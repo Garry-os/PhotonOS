@@ -18,5 +18,5 @@ clean:
 	rm -rf limine/limine
 
 run:
-	qemu-system-x86_64 -hda ./build/disk.img
+	qemu-system-x86_64 -hda ./build/disk.img -debugcon stdio
 

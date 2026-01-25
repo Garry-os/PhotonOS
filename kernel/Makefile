@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -ffreestanding -fno-stack-protector -fno-stack-check \
 		 -mno-sse2 -mno-red-zone -mcmodel=large
 
 ## Include paths
-CFLAGS += -I src/
+CFLAGS += -I src/ -I src/arch
 
 LD = x86_64-elf-gcc
 LDFLAGS = -nostdlib -z max-page-size=0x1000 -T linker.ld
