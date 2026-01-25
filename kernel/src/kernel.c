@@ -5,7 +5,7 @@
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <x86_64/cpu.h>
+#include <boot.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -24,7 +24,7 @@ void start(void)
 		halt();
 	}
 
-	x86_outb(0xE9, 'h');
+	InitBootInfo();
 
 	halt();
 }
