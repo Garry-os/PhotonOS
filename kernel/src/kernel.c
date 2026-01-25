@@ -6,6 +6,7 @@
 #include <boot.h>
 #include <qemu/print.h>
 #include <x86_64/cpu.h>
+#include <x86_64/gdt.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -20,6 +21,9 @@ void start(void)
 	}
 
 	InitBootInfo();
+
+	// Initialized architecture-related stuff
+	InitGDT();
 
 	dbg_printf("Hello World! 0x%x\n", 0x123);
 
