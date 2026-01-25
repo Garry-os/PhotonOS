@@ -8,6 +8,7 @@
 #include <x86_64/cpu.h>
 #include <x86_64/gdt.h>
 #include <fb.h>
+#include <console.h>
 #include <utils/psf.h>
 
 // Set limine base revision to 4
@@ -26,16 +27,14 @@ void start(void)
 
 	// Initialize graphics-related stuff
 	InitFb();
-	FbClear(RGB(0, 0, 0));
-	DrawRect(100, 100, 50, 50, RGB(255, 10, 100));
-
-	PsfLoadDefaultFont();
-	PsfDrawChar(250, 300, RGB(255, 255, 255), RGB(0, 0, 0), 'G');
+	InitConsole();
+	clearScreen();
 
 	// Initialized architecture-related stuff
 	InitGDT();
 
-	dbg_printf("Hello World! 0x%x\n", 0x123);
+	printf("Hello World! 0x%x\n", 0x123);
+	printf("Test\n");
 
 	halt();
 }
