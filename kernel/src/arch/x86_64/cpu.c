@@ -2,6 +2,7 @@
 // CPU operations implementation in C using built-in assembly
 //
 #include "cpu.h"
+#include <qemu/print.h>
 
 void x86_outb(uint16_t port, uint8_t value)
 {
@@ -15,5 +16,21 @@ uint8_t x86_inb(uint16_t port)
     return result;
 }
 
+void panic()
+{
+	dbg_puts("Kernel panic!\n");
+	asm volatile ("cli");
+	while (1)
+	{
+		asm volatile ("hlt");
+	}
+}
 
+void halt()
+{
+	while (1)
+	{
+		asm volatile ("hlt");
+	}
+}
 

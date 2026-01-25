@@ -1,4 +1,6 @@
 #include "boot.h"
+#include <qemu/print.h>
+#include <x86_64/cpu.h>
 
 bootInfo_t g_BootInfo;
 
@@ -28,7 +30,8 @@ void InitBootInfo()
 	// Check if limine actually gave us 4 levels page table
 	if (liminePagingRes->mode != LIMINE_PAGING_MODE_X86_64_4LVL)
 	{
-		// TODO
+		dbg_puts("[Kernel] 4 levels page table isn't avaliable\n");
+		panic();
 	}
 
 	struct limine_hhdm_response* limineHHDMRes = limineHHDMReq.response;
