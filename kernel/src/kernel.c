@@ -7,6 +7,7 @@
 #include <qemu/print.h>
 #include <x86_64/cpu.h>
 #include <x86_64/gdt.h>
+#include <fb.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -21,6 +22,9 @@ void start(void)
 	}
 
 	InitBootInfo();
+
+	// Initialize graphics-related stuff
+	InitFb();
 
 	// Initialized architecture-related stuff
 	InitGDT();
