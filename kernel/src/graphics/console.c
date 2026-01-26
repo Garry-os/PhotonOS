@@ -11,6 +11,10 @@ int g_PosY = 0;
 uint32_t g_fg = RGB(222, 222, 222); // Foreground color
 uint32_t g_bg = RGB(10, 10, 10); // Background color
 
+// Cursor size
+uint32_t g_CursorWidth = 8;
+uint32_t g_CursorHeight = 0; // Will be assigned in InitConsole()
+
 void InitConsole()
 {
 	// Load the gohufont
@@ -21,6 +25,18 @@ void InitConsole()
 	
 	g_PosX = 0;
 	g_PosY = 0;
+	
+	g_CursorHeight = (uint32_t)g_psf->height;
+}
+
+void eraseCursor()
+{
+	DrawRect(g_PosX, g_PosY, g_CursorWidth, g_CursorHeight, g_bg);
+}
+
+void updateCursor()
+{
+	DrawRect(g_PosX, g_PosY, g_CursorWidth, g_CursorHeight, g_fg);
 }
 
 void clearScreen()
@@ -33,6 +49,7 @@ void clearScreen()
 
 void putc(char c)
 {
+	eraseCursor();
 	switch (c)
 	{
 		case '\n':
@@ -64,6 +81,8 @@ void putc(char c)
 	{
 		clearScreen();
 	}
+
+	updateCursor();
 }
 
 void puts(const char* str)
