@@ -20,7 +20,7 @@ To run using QEMU: `make run`
 
 ## Real hardware
 For booting on real hardware, you can copy the disk image to a flash drive or something by: `dd if=build/disk.img of=/dev/sdX`
-**IMPORTANT: ** Replace /dev/sdX with your actual drive. <br>
+**IMPORTANT:** Replace /dev/sdX with your actual drive. <br>
 If you accidentally did it wrong, the data from that disk will all be erased! <br>
 
 Although, booting on real hardware isn't guarenteed to work.
