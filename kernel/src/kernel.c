@@ -2,14 +2,12 @@
 // Kernel entry point
 //
 
-#include <limine.h>
 #include <boot.h>
-#include <qemu/print.h>
 #include <x86_64/cpu.h>
 #include <x86_64/gdt.h>
+#include <x86_64/idt.h>
 #include <fb.h>
 #include <console.h>
-#include <utils/psf.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -32,6 +30,7 @@ void start(void)
 
 	// Initialized architecture-related stuff
 	InitGDT();
+	InitIDT();
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
