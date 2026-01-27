@@ -6,6 +6,7 @@
 #include <x86_64/cpu.h>
 #include <x86_64/gdt.h>
 #include <x86_64/idt.h>
+#include <x86_64/isr.h>
 #include <fb.h>
 #include <console.h>
 
@@ -31,6 +32,7 @@ void start(void)
 	// Initialized architecture-related stuff
 	InitGDT();
 	InitIDT();
+	InitISR();
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
