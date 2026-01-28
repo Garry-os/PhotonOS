@@ -9,8 +9,8 @@
 #include <x86_64/isr.h>
 #include <fb.h>
 #include <console.h>
-#include <utils/bitmap.h>
 #include <qemu/print.h>
+#include <pmm.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -31,27 +31,18 @@ void start(void)
 	InitConsole();
 	clearScreen();
 
-	// Initialized architecture-related stuff
+	// Initialize architecture-related stuff
 	InitGDT();
 	InitIDT();
 	InitISR();
 
-	// Bitmap test
-	uint8_t buffer[10] = { 0 };
-	bitmap_t bitmap;
-	bitmap.buffer = &buffer[0];
-	bitmap.size = sizeof(buffer);
+	// Initialize memory management
+	InitPMM();
 
-	BitmapSet(&bitmap, 0, true);
-	BitmapSet(&bitmap, 2, true);
-	BitmapSet(&bitmap, 4, true);
-	BitmapSet(&bitmap, 6, true);
-	BitmapSet(&bitmap, 8, true);
-
-	for (int i = 0; i < 10; i++)
-	{
-		dbg_printf("%d: %d\n", i, BitmapGet(&bitmap, i));
-	}
+	// Allocation test
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");

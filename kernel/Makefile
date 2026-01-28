@@ -6,7 +6,7 @@ ASM = nasm
 ASMFLAGS = -felf64
 
 ## Include paths
-CFLAGS += -I src/ -I src/arch -I src/graphics
+CFLAGS += -I src/ -I src/arch -I src/graphics -I src/memory
 
 LD = x86_64-elf-gcc
 LDFLAGS = -nostdlib -z max-page-size=0x1000 -T linker.ld
