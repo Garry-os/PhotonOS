@@ -33,6 +33,11 @@ void panic()
 	}
 }
 
+void invalidate(uint64_t virtAddr)
+{
+	asm volatile("invlpg %0" ::"m"(virtAddr));
+}
+
 void halt()
 {
 	while (1)

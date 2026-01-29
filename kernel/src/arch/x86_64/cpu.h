@@ -37,3 +37,5 @@ uint8_t x86_inb(uint16_t port);
 void panic();
 void halt();
 
+void invalidate(uint64_t virtAddr);
+
