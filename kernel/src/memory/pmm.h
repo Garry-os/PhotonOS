@@ -5,7 +5,7 @@
 #define PAGE_SIZE 0x1000
 
 void InitPMM();
-void* pmm_AllocatePage();
+void* pmm_AllocatePages(size_t pages);
 
 void FreePages(void* address, size_t pages);
 

@@ -40,9 +40,9 @@ void start(void)
 	InitPMM();
 
 	// Allocation test
-	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
-	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
-	dbg_printf("Address: 0x%llx\n", pmm_AllocatePage());
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePages(1));
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePages(2));
+	dbg_printf("Address: 0x%llx\n", pmm_AllocatePages(1));
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");

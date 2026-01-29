@@ -60,26 +60,45 @@ void InitPMM()
 	LockPages((void*)bitmapPtr, bitmapSize); // Bitmap
 }
 
-// Return an avaliable address
-void* pmm_AllocatePage()
+uint64_t FindFreeRegion(size_t pages)
 {
-	for (uint64_t i = 0; i < g_Bitmap.size * 8; i++)
+	uint64_t start = 0;
+	size_t currentSize = 0;
+
+	for (uint64_t i = start; i < g_Bitmap.size * 8; i++)
 	{
 		if (BitmapGet(&g_Bitmap, i))
 		{
+			// Occupied
+			start = i + 1;
+			currentSize = 0;
 			continue;
 		}
 
-		void* address = (void*)(i * PAGE_SIZE);
-		LockPages(address, 1);
-		return address;
+		currentSize++;
+		if (currentSize >= pages)
+		{
+			return start;
+		}
 	}
 
 	// Out of memory
-	dbg_printf("[PMM] Out of memory!\n");
-	panic();
+	return 0;
+}
 
-	return NULL;
+// Return an avaliable address
+void* pmm_AllocatePages(size_t pages)
+{
+	uint64_t region = FindFreeRegion(pages);
+	if (region == 0)
+	{
+		dbg_printf("[PMM] Out of memory!\n");
+		panic();
+	}
+
+	LockPages((void*)(region * PAGE_SIZE), pages);
+
+	return (void*)(region * PAGE_SIZE);
 }
 
 void LockPage(void* address)
