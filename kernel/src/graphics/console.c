@@ -4,6 +4,8 @@
 #include <fb.h>
 #include <x86_64/cpu.h>
 
+bool consoleInit = false; // Initialized or not?
+
 // Cursor positions
 int g_PosX = 0;
 int g_PosY = 0;
@@ -27,6 +29,8 @@ void InitConsole()
 	g_PosY = 0;
 	
 	g_CursorHeight = (uint32_t)g_psf->height;
+
+	consoleInit = true;
 }
 
 void eraseCursor()

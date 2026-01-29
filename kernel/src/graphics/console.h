@@ -1,4 +1,7 @@
 #pragma once
+#include <stdbool.h>
+
+extern bool consoleInit; // Initialized or not?
 
 void InitConsole();
 
