@@ -42,13 +42,10 @@ void start(void)
 	InitPMM();
 	InitVMM();
 
-	// VMM mapping test
-	vmm_MapPage((void*)0x100000000, (void*)0x8000, PF_PRESENT);
-
-	uint64_t* test = (uint64_t*)0x100000000;
-	*test = 0x10;
-
-	dbg_printf("Test: 0x%llx\n", *test);
+	// Allocation test
+	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(1));
+	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(2));
+	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(1));
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");

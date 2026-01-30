@@ -51,7 +51,7 @@ void InitPMM()
 
 		if (entry->type == LIMINE_MEMMAP_USABLE)
 		{
-			FreePages((void*)entry->base, entry->length / PAGE_SIZE);
+			pmm_Free((void*)entry->base, entry->length / PAGE_SIZE);
 		}
 	}
 
@@ -87,7 +87,7 @@ uint64_t FindFreeRegion(size_t pages)
 }
 
 // Return an avaliable address
-void* pmm_AllocatePages(size_t pages)
+void* pmm_Allocate(size_t pages)
 {
 	uint64_t region = FindFreeRegion(pages);
 	if (region == 0)
@@ -121,7 +121,7 @@ void FreePage(void* address)
 	BitmapSet(&g_Bitmap, index, false);
 }
 
-void FreePages(void* address, size_t pages)
+void pmm_Free(void* address, size_t pages)
 {
 	for (size_t i = 0; i < pages; i++)
 	{

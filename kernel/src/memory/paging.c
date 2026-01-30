@@ -10,7 +10,7 @@
 // Allocate page table
 uint64_t pt_Allocate()
 {
-	uint64_t phys = (uint64_t)pmm_AllocatePages(1);
+	uint64_t phys = (uint64_t)pmm_Allocate(1);
 	
 	void* virt = (void*)(phys + g_BootInfo.hhdmOffset);
 	memset(virt, 0, PAGE_SIZE);
