@@ -13,6 +13,11 @@ On Windows, it is obviously not Unix-like. I recommended using WSL2 (Windows sub
 - mkfs (dosfstools)
 - A cross compiler (x86-64)
 
+## Cross compiler
+This is probably the most challenging part about compiling this OS. Although there isn't a script to get the compiler. <br>
+For instructions, click [here](https://wiki.osdev.org/GCC_Cross-Compiler).
+Remember that this OS require x86-64, not i686 cross compiler. <br>
+
 ## Compile
 To compile, simply run: `make`
 ## Run
