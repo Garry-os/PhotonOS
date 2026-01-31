@@ -33,6 +33,11 @@ void panic()
 	}
 }
 
+void x86_iowait()
+{
+	x86_outb(0x80, 0);
+}
+
 void invalidate(uint64_t virtAddr)
 {
 	asm volatile("invlpg %0" ::"m"(virtAddr));

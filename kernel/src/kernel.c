@@ -7,6 +7,7 @@
 #include <x86_64/gdt.h>
 #include <x86_64/idt.h>
 #include <x86_64/isr.h>
+#include <x86_64/irq.h>
 #include <fb.h>
 #include <console.h>
 #include <qemu/print.h>
@@ -44,20 +45,7 @@ void start(void)
 	InitVMM();
 	InitHeap();
 
-	// Allocation test
-	void* address = malloc(0x100);
-	void* address1 = malloc(0x100);
-	void* address2 = malloc(0x100);
-	dbg_printf("Malloc result: 0x%llx\n", address);
-	dbg_printf("Malloc result: 0x%llx\n", address1);
-	dbg_printf("Malloc result: 0x%llx\n", address2);
-	free(address2);
-
-	// After freeing
-	dbg_printf("After freeing\n");
-	dbg_printf("Malloc result: 0x%llx\n", address);
-	dbg_printf("Malloc result: 0x%llx\n", malloc(0x100));
-
+	InitIRQ();
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
