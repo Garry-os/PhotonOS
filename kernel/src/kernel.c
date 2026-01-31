@@ -13,6 +13,7 @@
 #include <pmm.h>
 #include <vmm.h>
 #include <paging.h>
+#include <malloc.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -41,11 +42,12 @@ void start(void)
 	// Initialize memory management
 	InitPMM();
 	InitVMM();
+	InitHeap();
 
 	// Allocation test
-	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(1));
-	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(2));
-	dbg_printf("VMM Allocate: 0x%llx\n", vmm_Allocate(1));
+	dbg_printf("Malloc result: 0x%llx\n", malloc(0x100));
+	dbg_printf("Malloc result: 0x%llx\n", malloc(0x20 * 0x1000 - 0x200));
+	dbg_printf("Malloc result: 0x%llx\n", malloc(0x100));
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
