@@ -1,7 +1,10 @@
 # PhotonOS
 
 ## General
-A small x86-64 OS (kernel), currently, it doesn't have much features (yet).
+A small x86-64 OS (kernel), currently, it is under development. <br>
+These are a few features of the kernel:
+- x86-64 architectures features almost fully supported (GDT, IDT, I/O, ISR).
+- Memory management (Including pmm, vmm, heap).
 
 ## Installation
 For installation guide, go to `docs/install.md`.
