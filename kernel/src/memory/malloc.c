@@ -81,6 +81,9 @@ mNode_t* splitNode(mNode_t* node, size_t size)
 	return newNode;
 }
 
+void combineForward(mNode_t* node);
+void combineBackward(mNode_t* node);
+
 void expandHeap(size_t size)
 {
 	dbg_printf("[Heap] Expanding heap!\n");
@@ -97,6 +100,50 @@ void expandHeap(size_t size)
 	// Update last node
 	lastNode->next = newNode;
 	lastNode = newNode;
+
+	// Combine two nodes if can
+	// TODO
+	// uint8_t combine = canCombine(newNode);
+	// if (combine & COMBINE_LEFT)
+	// {
+	// 	combineBackward(newNode);
+	// }
+}
+
+// Combine two nodes forward
+void combineForward(mNode_t* node)
+{
+	if (node->next == NULL)
+	{
+		return;
+	}
+
+	if (!node->next->free)
+	{
+		return;
+	}
+
+	if (node->next == lastNode)
+	{
+		lastNode = node;
+	}
+
+	if (node->next->next != NULL)
+	{
+		node->next->next->prev = node;
+	}
+
+	node->size = node->size + node->next->size + sizeof(mNode_t);
+	node->next = node->next->next;
+}
+
+// Combine two nodes backward
+void combineBackward(mNode_t* node)
+{
+	if (node->prev != NULL && node->prev->free)
+	{
+		combineForward(node->prev);
+	}
 }
 
 void* malloc(size_t size)
@@ -145,5 +192,18 @@ void* malloc(size_t size)
 	}
 
 	return NULL;
+}
+
+void free(void* address)
+{
+	if (address == NULL)
+	{
+		return;
+	}
+
+	mNode_t* node = (mNode_t*)address - 1;
+	node->free = true;
+	combineForward(node);
+	combineBackward(node);
 }
 
