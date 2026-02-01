@@ -8,6 +8,7 @@
 #include <x86_64/idt.h>
 #include <x86_64/isr.h>
 #include <x86_64/irq.h>
+#include <x86_64/timer.h>
 #include <fb.h>
 #include <console.h>
 #include <qemu/print.h>
@@ -46,6 +47,9 @@ void start(void)
 	InitHeap();
 
 	InitIRQ();
+	InitPIT(1193);
+
+	sleep(1000);
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
