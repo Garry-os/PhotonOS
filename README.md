@@ -5,6 +5,7 @@ A small x86-64 OS (kernel), currently, it is under development. <br>
 These are a few features of the kernel:
 - x86-64 architectures features almost fully supported (GDT, IDT, I/O, ISR).
 - Memory management (Including pmm, vmm, heap).
+- PS/2 keyboard driver
 
 ## Installation
 For installation guide, go to `docs/install.md`.
