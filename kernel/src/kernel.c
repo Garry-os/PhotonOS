@@ -16,6 +16,7 @@
 #include <vmm.h>
 #include <paging.h>
 #include <malloc.h>
+#include <ps2/keyboard.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -49,10 +50,16 @@ void start(void)
 	InitIRQ();
 	InitPIT(1193);
 
-	sleep(1000);
+	InitPS2Keyboard();
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
+
+	while (1)
+	{
+		char c = getKey();
+		putc(c);
+	}
 
 	halt();
 }
