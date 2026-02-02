@@ -4,6 +4,7 @@
 #include "timer.h"
 #include <x86_64/cpu.h>
 #include <x86_64/irq.h>
+#include <scheduler.h>
 
 #define TIMER_ACCURANCY 1193182 // 1.193182 MHz
 
@@ -33,6 +34,8 @@ void timerTicks(cpu_registers_t* context)
 {
 	(void)context;
 	ticks++;
+
+	schedule(context);
 }
 
 void sleep(uint64_t miliseconds)

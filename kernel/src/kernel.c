@@ -17,6 +17,7 @@
 #include <paging.h>
 #include <malloc.h>
 #include <ps2/keyboard.h>
+#include <task.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -51,9 +52,16 @@ void start(void)
 	InitPIT(1193);
 
 	InitPS2Keyboard();
+	
+	// Multitasking
+	InitTasks();
+
+	dbg_printf("Task is still running!\n");
 
 	printf("Hello World! 0x%x\n", 0x123);
 	printf("Test\n");
+
+	dbg_printf("Task is still running!\n");
 
 	while (1)
 	{

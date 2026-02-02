@@ -130,6 +130,15 @@ isr_common:
 	add rsp, 16 ; Pop error code & interrupt number
 	iretq
 
+global asm_switchTask
+asm_switchTask:
+	;; rdi: iretq stack
+	mov rsp, rdi
+
+	restore_context ; Restore registers
+	add rsp, 16 ; Pop error code & interrupt number
+	iretq
+
 section .data
 
 ;; An ISR stub table
