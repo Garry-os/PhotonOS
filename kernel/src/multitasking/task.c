@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <utils/memory.h>
 #include <stack.h>
+#include <lock.h>
 
 task_t* firstTask;
 task_t* currentTask;
@@ -14,11 +15,10 @@ size_t freeId = 1;
 
 task_t* TaskCreate(void (*entry)(void))
 {
-	// TODO: Implement scheduler locks
 	task_t* task = (task_t*)malloc(sizeof(task_t));
 	memset(task, 0, sizeof(task_t));
 
-	asm volatile ("cli");
+	lockAcquire();
 
 	// Find the next linked list element
 	task_t* index =	firstTask;
@@ -44,7 +44,7 @@ task_t* TaskCreate(void (*entry)(void))
 
 	task->status = TASK_STATE_READY;
 
-	asm volatile ("sti");
+	lockRelease();
 
 	return task;
 }
