@@ -42,9 +42,14 @@ void* vmm_Allocate(size_t pages)
 
 void vmm_Free(void* address, size_t pages)
 {
-	// TODO
-	(void)address;
-	(void)pages;
+	void* phys = vmm_VirtToPhys(address);
+	if (!phys)
+	{
+		dbg_printf("[VMM] Couldn't find physical address!\n");
+		return;
+	}
+
+	pmm_Free(phys, pages);
 }
 
 void* vmm_VirtToPhys(void* virt)
