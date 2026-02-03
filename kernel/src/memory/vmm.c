@@ -47,4 +47,8 @@ void vmm_Free(void* address, size_t pages)
 	(void)pages;
 }
 
+void* vmm_VirtToPhys(void* virt)
+{
+	return (void*)pt_VirtToPhys(g_PageDir, (uint64_t)virt);
+}
 
