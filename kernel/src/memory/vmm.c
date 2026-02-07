@@ -6,6 +6,7 @@
 #include <x86_64/cpu.h>
 #include <boot.h>
 #include <pmm.h>
+#include <task.h>
 
 uint64_t* g_PageDir = NULL;
 
@@ -55,5 +56,45 @@ void vmm_Free(void* address, size_t pages)
 void* vmm_VirtToPhys(void* virt)
 {
 	return (void*)pt_VirtToPhys(g_PageDir, (uint64_t)virt);
+}
+
+// Change the global pml4 & switch CR3
+void vmm_SwitchPd(uint64_t* pd)
+{
+	uint64_t phys = (uint64_t)vmm_VirtToPhys((void*)pd);
+	if (!phys)
+	{
+		dbg_printf("[VMM] Can't switch page directory! Invalid physical address!\n");
+		panic();
+	}
+
+	g_PageDir = pd;
+	asm volatile("movq %0, %%cr3" ::"r"(phys));
+}
+
+// Switch the task's pd
+// And does the same as vmm_SwitchPd()
+void vmm_SwitchPdTask(uint64_t* pd)
+{
+	if (taskInitialized)
+	{
+		currentTask->pd = pd;
+	}
+
+	vmm_SwitchPd(pd);
+}
+
+// Switch only the g_PageDir variable
+// Does not actually switch CR3
+void vmm_SwitchPdGlobal(uint64_t* pd)
+{
+	uint64_t phys = (uint64_t)vmm_VirtToPhys((void*)pd);
+	if (!phys)
+	{
+		dbg_printf("[VMM] Can't switch page directory! Invalid physical address!\n");
+		panic();
+	}
+
+	g_PageDir = pd;
 }
 
