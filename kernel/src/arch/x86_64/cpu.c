@@ -21,7 +21,6 @@ void panic()
 {
 	if (consoleInit)
 	{
-		clearScreen();
 		printf("FATAL: Kernel panic!\n");
 	}
 
