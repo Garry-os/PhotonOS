@@ -2,6 +2,7 @@
 #include <qemu/print.h>
 #include <x86_64/idt.h>
 #include <stddef.h>
+#include <console.h>
 
 ISRHandler g_Handlers[256];
 
@@ -57,6 +58,7 @@ void interrupt_handler(cpu_registers_t* context)
 	{
 		// Else, it is a CPU exception
 		dbg_printf("[ISR] CPU triggered an exception: %s, error code: %d\n", g_Exceptions[context->interrupt_number], context->error_code);
+		printf("CPU triggered an exception: %s\n", g_Exceptions[context->interrupt_number]);
 		panic();
 	}
 }
