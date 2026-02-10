@@ -74,15 +74,15 @@ void vmm_SwitchPd(uint64_t* pd)
 
 // Switch the task's pd
 // And does the same as vmm_SwitchPd()
-void vmm_SwitchPdTask(uint64_t* pd)
-{
-	if (taskInitialized)
-	{
-		currentTask->pd = pd;
-	}
-
-	vmm_SwitchPd(pd);
-}
+// void vmm_SwitchPdTask(uint64_t* pd)
+// {
+// 	if (taskInitialized)
+// 	{
+// 		currentTask->pd = pd;
+// 	}
+//
+// 	vmm_SwitchPd(pd);
+// }
 
 // Switch only the g_PageDir variable
 // Does not actually switch CR3
