@@ -40,7 +40,6 @@ void start(void)
 
 	// Initialize architecture-related stuff
 	InitGDT();
-	InitIDT();
 	InitISR();
 
 	// Initialize memory management
@@ -55,6 +54,8 @@ void start(void)
 	
 	// Multitasking
 	InitTasks();
+
+	printf("PhotonOS v0.0.1\n");
 
 	while (1)
 	{

@@ -26,16 +26,12 @@ void IRQ_Handler(cpu_registers_t* context)
 
 void InitIRQ()
 {
-	// Remap the PIC from 0 - 15 to 32 - 48
-	RemapPIC(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8);
+	// Already remapped
 
 	for (int i = 0; i < 16; i++)
 	{
 		ISR_RegisterHandler(PIC_REMAP_OFFSET + i, IRQ_Handler);
 	}
-
-	// Re-enable interrupt
-	asm volatile ("sti");
 }
 
 void IRQ_RegisterHandler(int irq, IRQHandler handler)

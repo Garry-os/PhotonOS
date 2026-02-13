@@ -3,6 +3,7 @@
 #include <x86_64/idt.h>
 #include <stddef.h>
 #include <console.h>
+#include <arch/x86_64/pic.h>
 
 ISRHandler g_Handlers[256];
 
@@ -74,10 +75,18 @@ void interrupt_handler(cpu_registers_t* context)
 
 void InitISR()
 {
+	RemapPIC(0x20, 0x20 + 8);
 	for (int i = 0; i < 48; i++)
 	{
 		IDT_SetGate(i, (uint64_t)isr_stub_table[i], IDT_INTERRUPT_GATE);
 	}
+
+	InitIDT();
+
+	// Re-enable interrupts
+	asm volatile ("sti");
+
+	(void)x86_inb(0x60);
 }
 
 void ISR_RegisterHandler(int interrupt, ISRHandler handler)
