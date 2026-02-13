@@ -59,7 +59,7 @@ void* vmm_VirtToPhys(void* virt)
 }
 
 // Change the global pml4 & switch CR3
-void vmm_SwitchPd(uint64_t* pd)
+void vmm_SwitchPdUnsafe(uint64_t* pd)
 {
 	uint64_t phys = (uint64_t)vmm_VirtToPhys((void*)pd);
 	if (!phys)
@@ -73,16 +73,16 @@ void vmm_SwitchPd(uint64_t* pd)
 }
 
 // Switch the task's pd
-// And does the same as vmm_SwitchPd()
-// void vmm_SwitchPdTask(uint64_t* pd)
-// {
-// 	if (taskInitialized)
-// 	{
-// 		currentTask->pd = pd;
-// 	}
-//
-// 	vmm_SwitchPd(pd);
-// }
+// And does the same as vmm_SwitchPdUnsafe()
+void vmm_SwitchPd(uint64_t* pd)
+{
+	if (taskInitialized)
+	{
+		currentTask->pd = pd;
+	}
+
+	vmm_SwitchPdUnsafe(pd);
+}
 
 // Switch only the g_PageDir variable
 // Does not actually switch CR3
@@ -97,4 +97,30 @@ void vmm_SwitchPdGlobal(uint64_t* pd)
 
 	g_PageDir = pd;
 }
+
+uint64_t* vmm_CopyKernelPd()
+{
+	if (!taskInitialized)
+	{
+		dbg_printf("[Paging] Trying to copy kernel pd without multitasking initialized!\n");
+		panic();
+	}
+
+	uint64_t* out = vmm_Allocate(1);
+
+	uint64_t* kernelPd = TaskGet(KERNEL_TASK_ID)->pd;
+
+	for (int i = 0; i < 512; i++)
+	{
+		out[i] = kernelPd[i];
+	}
+
+	return out;
+}
+
+uint64_t* vmm_GetCurrentPd()
+{
+	return g_PageDir;
+}
+
 

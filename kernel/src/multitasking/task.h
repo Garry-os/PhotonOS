@@ -7,6 +7,7 @@
 #define KERNEL_TASK_ID 0
 
 extern bool taskInitialized;
+extern bool schedulerReady;
 
 typedef enum
 {
@@ -22,13 +23,18 @@ typedef struct task
 	cpu_registers_t context;
 	struct task* next;
 	uint8_t status;
+	uint64_t* pd;
+
+	uint64_t iretqRsp; // TODO: Implement TSS instead of this
 } task_t;
 
 extern task_t* firstTask;
 extern task_t* currentTask;
 extern task_t* dummyTask;
 
-task_t* TaskCreate(void (*entry)(void));
+task_t* TaskCreate(void (*entry)(void), uint64_t* pd);
+
+task_t* TaskGet(size_t id);
 
 void InitTasks();
 

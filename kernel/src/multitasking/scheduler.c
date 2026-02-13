@@ -3,13 +3,14 @@
 #include <utils/memory.h>
 #include <x86_64/pic.h>
 #include <qemu/print.h>
+#include <vmm.h>
 
 // In isr.asm
-extern void asm_switchTask(uint64_t iretRsp);
+extern void asm_switchTask(uint64_t iretRsp, uint64_t pd);
 
 void schedule(cpu_registers_t* context)
 {
-	if (!taskInitialized)
+	if (!schedulerReady)
 	{
 		return;
 	}
@@ -44,11 +45,16 @@ void schedule(cpu_registers_t* context)
 	memcpy(&old->context, context, sizeof(cpu_registers_t));
 
 	// Setup the new CPU context in the task's stack
-	cpu_registers_t* iretqRsp = (cpu_registers_t*)(next->context.rsp - sizeof(cpu_registers_t));
+	cpu_registers_t* iretqRsp = (cpu_registers_t*)(next->iretqRsp - sizeof(cpu_registers_t));
 	memcpy(iretqRsp, &next->context, sizeof(cpu_registers_t));
+
+	// Only switch to global pd variable
+	// The actual CR3 switch will be in the switch task function
+	// This is safer I guess?
+	vmm_SwitchPdGlobal(next->pd);
 
 	PIC_SendEOI(context->interrupt_number);
 	// Switch task in asm
-	asm_switchTask((uint64_t)iretqRsp);
+	asm_switchTask((uint64_t)iretqRsp, (uint64_t)vmm_VirtToPhys((void*)next->pd));
 }
 

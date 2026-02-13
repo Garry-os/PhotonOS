@@ -54,6 +54,15 @@ void interrupt_handler(cpu_registers_t* context)
 		// Probably an unhandled interrupt
 		dbg_printf("[ISR] Unhandled interrupt: 0x%x\n", context->interrupt_number);
 	}
+	else if (context->interrupt_number == 14)
+	{
+		// Page fault
+		uint64_t pageFault_addr;
+		asm volatile("movq %%cr2, %0" : "=r"(pageFault_addr));
+		dbg_printf("[ISR] CPU triggered an exception: %s, error code: %d, page fault address: 0x%llx\n", g_Exceptions[context->interrupt_number], context->error_code, pageFault_addr);
+		printf("CPU triggered an exception: %s\n", g_Exceptions[context->interrupt_number]);
+		panic();
+	}
 	else
 	{
 		// Else, it is a CPU exception

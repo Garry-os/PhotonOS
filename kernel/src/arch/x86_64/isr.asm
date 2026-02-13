@@ -133,7 +133,9 @@ isr_common:
 global asm_switchTask
 asm_switchTask:
 	;; rdi: iretq stack
+	;; rsi: task's pd
 	mov rsp, rdi
+	mov cr3, rsi
 
 	restore_context ; Restore registers
 	add rsp, 16 ; Pop error code & interrupt number

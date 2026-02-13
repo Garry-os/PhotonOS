@@ -70,12 +70,11 @@ uint64_t pt_VirtToPhys(uint64_t* pml4, uint64_t virtAddr)
 	}
 
 	// If it is a hhdm address
-	// TODO
-	// if (virtAddr >= g_BootInfo.hhdmOffset)
-	// {
-	//
-	// }
-	//
+	if (virtAddr >= g_BootInfo.hhdmOffset && virtAddr <= (g_BootInfo.hhdmOffset + g_BootInfo.mmTotal))
+	{
+		return virtAddr - g_BootInfo.hhdmOffset;
+	}
+
 	
 	uint64_t initial_virt = virtAddr;
 	virtAddr = P_PHYS_ADDR(virtAddr);
