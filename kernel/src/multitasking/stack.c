@@ -10,7 +10,7 @@
 void* AllocateStack()
 {
 	void* bottom = vmm_Allocate(STACK_SIZE / PAGE_SIZE);
-	void* top = (void*)((size_t)top + STACK_SIZE);
+	void* top = (void*)((size_t)bottom + STACK_SIZE);
 	memset(bottom, 0, STACK_SIZE);
 
 	return top;
