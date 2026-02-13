@@ -56,14 +56,6 @@ void start(void)
 	// Multitasking
 	InitTasks();
 
-	void* virt = (void*)0x10000000;
-	vmm_MapPage(virt, (void*)0x8000, PF_PRESENT);
-
-	dbg_printf("Physical address: %llx\n", vmm_VirtToPhys(virt));
-
-	printf("Hello World! 0x%x\n", 0x123);
-	printf("Test\n");
-
 	while (1)
 	{
 		char c = getKey();
