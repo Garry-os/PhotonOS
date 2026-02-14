@@ -39,14 +39,14 @@ void start(void)
 	InitConsole();
 	clearScreen();
 
-	// Initialize architecture-related stuff
-	InitGDT();
-	InitISR();
-
 	// Initialize memory management
 	InitPMM();
 	InitVMM();
 	InitHeap();
+
+	// Initialize architecture-related stuff
+	InitGDT();
+	InitISR();
 
 	InitIRQ();
 	InitPIT(1193);
