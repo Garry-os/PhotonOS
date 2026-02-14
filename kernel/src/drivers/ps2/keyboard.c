@@ -9,6 +9,13 @@
 #include <x86_64/cpu.h>
 #include <x86_64/irq.h>
 
+#define LeftShift 0x2A
+#define RightShift 0x36
+#define Enter 0x1C
+#define Backspace 0x0E
+#define Spacebar 0x39
+#define Tab 0x0F
+
 #define PS2_PORT 0x60
 
 typedef struct
@@ -37,18 +44,34 @@ const char ASCIITable[] = {
 	0 , ' '
 };
 
+const char UppercaseTable[] = {
+	0 ,  0 , '!', '@',
+   '#', '$', '%', '^',
+   '&', '*', '(', ')',
+   '_', '+',  0 ,  0 ,
+   'Q', 'W', 'E', 'R',
+   'T', 'Y', 'U', 'I',
+   'O', 'P', '{', '}',
+	0 ,  0 , 'A', 'S',
+   'D', 'F', 'G', 'H',
+   'J', 'K', 'L', ':',
+   '"',  0 , '|',
+   'Z', 'X', 'C', 'V',
+   'B', 'N', 'M', '<',
+   '>', '?',  0 , '*',
+	0 , ' '
+};
+
 char ScancodeToASCII(uint8_t scancode, bool uppercase)
 {
 	if (scancode > 58) return 0;
 
-	char c = ASCIITable[scancode];
-
 	if (uppercase)
 	{
-		return c - 0x20;
+		return UppercaseTable[scancode];
 	}
 
-	return c;
+	return ASCIITable[scancode];
 }
 
 void keyboardHandler(cpu_registers_t* context)
@@ -57,7 +80,34 @@ void keyboardHandler(cpu_registers_t* context)
 
 	uint8_t scancode = x86_inb(PS2_PORT);
 
-	char key = ScancodeToASCII(scancode, false);
+	char key = ScancodeToASCII(scancode, g_KeyInfo->uppercase);
+
+	switch (scancode)
+	{
+		case Enter:
+			key = '\n';
+			break;
+		case LeftShift:
+			g_KeyInfo->uppercase = true;
+			return;
+		case RightShift:
+			g_KeyInfo->uppercase = true;
+			return;
+		case LeftShift + 0x80:
+			// Release
+			g_KeyInfo->uppercase = false;
+			return;
+		case RightShift + 0x80:
+			// Release
+			g_KeyInfo->uppercase = false;
+			return;
+		case Backspace:
+			key = '\b';
+			break;
+		case Tab:
+			key = '\t';
+			break;
+	}
 
 	if (key != 0)
 	{

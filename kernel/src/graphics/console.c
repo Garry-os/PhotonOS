@@ -66,6 +66,24 @@ void putc(char c)
 				putc(' ');
 			}
 			break;
+		case '\b':
+			// If there's no space
+			if (g_PosX <= 0 && g_PosY <= 0)
+			{
+				updateCursor();
+				return;
+			}
+
+			if (g_PosX <= 0 && g_PosY >= 0)
+			{
+				// Back a line
+				g_PosX = g_FbInfo.width;
+				g_PosY -= g_psf->height;
+			}
+			g_PosX -= 8;
+			// Draw a rectangle to overwrite the character
+			DrawRect(g_PosX, g_PosY, g_CursorWidth, g_CursorHeight, g_bg);
+			break;
 		case '\r':
 			g_PosX = 0;
 			break;
@@ -75,7 +93,7 @@ void putc(char c)
 			break;
 	}
 
-	if (g_PosX + 8 >= g_FbInfo.width)
+	if (g_PosX >= g_FbInfo.width)
 	{
 		g_PosX = 0;
 		g_PosY += g_psf->height;
