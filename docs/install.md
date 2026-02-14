@@ -29,4 +29,5 @@ For booting on real hardware, you can copy the disk image to a flash drive or so
 If you accidentally did it wrong, the data from that disk will all be erased! <br>
 
 Although, booting on real hardware isn't guarenteed to work.
+If it didn't work, try enabling CSM in your UEFI since it uses MBR disk partitioning instead of GPT.
 
