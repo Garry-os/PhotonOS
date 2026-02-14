@@ -6,6 +6,7 @@ These are a few features of the kernel:
 - Pre-emptive multitasking kernel
 - x86-64 architectures features almost fully supported (GDT, IDT, I/O, ISR).
 - Memory management (Including pmm, vmm, heap).
+- PCI bus enumeration (via 32 bit CPU I/O)
 - PS/2 keyboard driver
 
 ## Installation
