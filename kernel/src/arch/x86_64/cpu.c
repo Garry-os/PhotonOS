@@ -17,6 +17,18 @@ uint8_t x86_inb(uint16_t port)
     return result;
 }
 
+void x86_outl(uint16_t port, uint32_t value)
+{
+    asm volatile ("outl %1, %0" : : "d"(port), "a"(value));
+}
+
+uint32_t x86_inl(uint16_t port)
+{
+    uint32_t result;
+    asm volatile ("inl %1, %0" : "=a"(result) : "d"(port));
+    return result;
+}
+
 void panic()
 {
 	if (consoleInit)

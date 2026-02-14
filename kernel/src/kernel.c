@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <ps2/keyboard.h>
 #include <task.h>
+#include <pci/pci.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -54,6 +55,8 @@ void start(void)
 	
 	// Multitasking
 	InitTasks();
+
+	InitPCI();
 
 	printf("PhotonOS v0.0.1\n");
 
