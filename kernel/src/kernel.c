@@ -60,6 +60,14 @@ void start(void)
 
 	printf("PhotonOS v0.0.1\n");
 
+	PCIDevice* current = firstPCIDevice;
+	while (current)
+	{
+		printf("Found PCI Device, vendor ID: %x, device ID: %x\n", current->vendorId, current->deviceId);
+
+		current = current->next;
+	}
+
 	while (1)
 	{
 		char c = getKey();

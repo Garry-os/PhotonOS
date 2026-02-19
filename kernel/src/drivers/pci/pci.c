@@ -7,6 +7,8 @@
 #include <utils/memory.h>
 #include <malloc.h>
 
+PCIDevice* firstPCIDevice;
+
 uint16_t PciConfigReadWord(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset)
 {
 	uint32_t address;
@@ -74,8 +76,6 @@ void PciGetGeneralHeader(PCIGeneralHeader* header, uint16_t bus, uint8_t slot, u
 	}
 }
 
-
-
 void InitPCI()
 {
 	PCIHeader* header = (PCIHeader*)malloc(sizeof(PCIHeader));
@@ -95,14 +95,43 @@ void InitPCI()
 
 				PciGetHeader(header, bus, slot, func);
 
-				// Clear bit 7
+				// Clear bit 7 to check for general header
 				if ((header->headerType & ~(1 << 7)) != PCI_GENERAL)
 				{
 					continue;
 				}
 
-				// Print out the devices' names
-				printf("PCI device found, vendor ID: %x, device ID: %x\n", header->vendorId, header->deviceId);
+				PCIDevice* device = (PCIDevice*)malloc(sizeof(PCIDevice));
+				memset(device, 0, sizeof(PCIDevice));
+				
+				device->bus = bus;
+				device->slot = slot;
+				device->func = func;
+
+				device->vendorId = header->vendorId;
+				device->deviceId = header->deviceId;
+
+				// Find the last PCI device & assign the PCI device
+				PCIDevice* current = firstPCIDevice;
+				while (1)
+				{
+					if (!current)
+					{
+						// First one
+						firstPCIDevice = device;
+						break;
+					}
+
+					if (!current->next)
+					{
+						// End of linked list
+						current->next = device;
+						break;
+					}
+
+					current = current->next;
+				}
+				device->next = NULL;
 			}
 		}
 	}

@@ -55,6 +55,22 @@ typedef struct
 	uint8_t maxLatency;
 } __attribute__((packed)) PCIGeneralHeader;
 
+// The general struct about a PCI device (Linked list)
+// Can access to the header via a function
+typedef struct PCIDevice
+{
+	uint16_t bus;
+	uint8_t slot;
+	uint8_t func;
+
+	uint16_t vendorId;
+	uint16_t deviceId;
+
+	struct PCIDevice* next;
+} PCIDevice;
+
+extern PCIDevice* firstPCIDevice;
+
 uint16_t PciConfigReadWord(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 uint32_t PciConfigReadDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 void InitPCI();
