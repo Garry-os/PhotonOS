@@ -66,10 +66,16 @@ typedef struct PCIDevice
 	uint16_t vendorId;
 	uint16_t deviceId;
 
+	// Headers
+	PCIHeader header;
+	PCIGeneralHeader generalHeader;
+
 	struct PCIDevice* next;
 } PCIDevice;
 
 extern PCIDevice* firstPCIDevice;
+
+PCIHeader* PciFindHeader(PCIDevice* device);
 
 uint16_t PciConfigReadWord(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 uint32_t PciConfigReadDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);

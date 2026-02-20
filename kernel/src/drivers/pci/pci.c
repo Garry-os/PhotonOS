@@ -111,6 +111,9 @@ void InitPCI()
 				device->vendorId = header->vendorId;
 				device->deviceId = header->deviceId;
 
+				device->header = *header;
+				PciGetGeneralHeader(&device->generalHeader, bus, slot, func);
+
 				// Find the last PCI device & assign the PCI device
 				PCIDevice* current = firstPCIDevice;
 				while (1)
