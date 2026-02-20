@@ -1,0 +1,13 @@
+Use block layers like Linux to abstract the FS to read from disk.
+Disk architecture layout:
+
+			   VFS
+				|
+			   FS
+				|
+			Block layer
+				|
+			Disk driver
+
+The FS implementation should not interact with the disk driver.
+
