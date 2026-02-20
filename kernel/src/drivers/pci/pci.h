@@ -21,9 +21,9 @@ typedef struct
 	uint16_t command;
 	uint16_t status;
 	uint8_t revisionId;
-	uint8_t ProgIF; // Program interface
+	uint8_t progIF; // Program interface
 	uint8_t subClassId;
-	uint8_t classID;
+	uint8_t classId;
 	uint8_t CacheLineSize;
 	uint8_t latencyTimer;
 	uint8_t headerType;
@@ -74,6 +74,11 @@ typedef struct PCIDevice
 } PCIDevice;
 
 extern PCIDevice* firstPCIDevice;
+
+// PCI class code & subclass & program interface
+#define PCI_MASS_STORAGE_CONTROLLER 0x1
+#define PCI_SATA 0x6
+#define PCI_AHCI_1_0 0x1
 
 PCIHeader* PciFindHeader(PCIDevice* device);
 

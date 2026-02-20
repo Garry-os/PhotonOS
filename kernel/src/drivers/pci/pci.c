@@ -135,6 +135,20 @@ void InitPCI()
 					current = current->next;
 				}
 				device->next = NULL;
+
+				// Initialize PCI devices' drivers
+				switch (header->classId)
+				{
+					case PCI_MASS_STORAGE_CONTROLLER:
+						if (header->subClassId == PCI_SATA)
+						{
+							if (header->progIF == PCI_AHCI_1_0)
+							{
+								printf("Detected AHCI 1.0 SATA controller.\n");
+							}
+						}
+						break;
+				}
 			}
 		}
 	}
