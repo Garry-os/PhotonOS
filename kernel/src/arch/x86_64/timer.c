@@ -6,6 +6,7 @@
 #include <x86_64/irq.h>
 #include <scheduler.h>
 #include <console.h>
+#include <task.h>
 
 #define TIMER_ACCURANCY 1193182 // 1.193182 MHz
 
@@ -43,7 +44,7 @@ void sleep(uint64_t miliseconds)
 	uint64_t start = ticks;
 	while (ticks < start + miliseconds)
 	{
-		asm volatile ("hlt");
+		yield();
 	}
 }
 

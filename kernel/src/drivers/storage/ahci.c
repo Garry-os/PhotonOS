@@ -9,6 +9,7 @@
 #include <qemu/print.h>
 #include <utils/memory.h>
 #include <malloc.h>
+#include <x86_64/timer.h>
 
 // CAP2
 #define AHCI_BIOS_HANDOFF (1 << 0) // If the BIOS/OS handoff mechanism is supported
@@ -16,6 +17,7 @@
 // BOHC
 #define AHCI_OOS (1 << 1) // OS ownership
 #define AHCI_BOS (1 << 0) // BIOS ownership
+#define AHCI_BB  (1 << 4) // BIOS busy
 
 // GHC
 #define AHCI_HR (1 << 0) // HBA reset
@@ -58,7 +60,11 @@ void InitAHCI(PCIDevice* device)
 		// Spin on the BIOS ownership bit, waiting to be set to 0
 		while (hba->bohc & AHCI_BOS);
 
-		// TODO: If BIOS busy bit is set to 1 within 25 seconds, the OS shall sleep for 2 seconds
+		// If BIOS busy bit is set to 1 within 25 seconds, the OS shall sleep for 2 seconds
+		if (hba->bohc & AHCI_BB)
+		{
+			sleep(2000);
+		}
 	}
 
 	// TODO: Reset controller (HBA reset)
