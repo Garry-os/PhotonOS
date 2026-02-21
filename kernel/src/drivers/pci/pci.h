@@ -13,6 +13,10 @@
 #define PCI_TO_PCI  0x1
 #define PCI_TO_CARDBUS 0x2
 
+#define PCI_BUS_MASTERING (1 << 2)
+#define PCI_MEMORY_SPACE (1 << 1)
+#define PCI_INT_DISABLE (1 << 10)
+
 // PCI header
 typedef struct
 {
@@ -34,7 +38,7 @@ typedef struct
 typedef struct
 {
 	// Base addresses
-	uint32_t BAR[6];
+	uint32_t bar[6];
 	
 	uint32_t CISPtr;
 	uint16_t subSysVendorId;
@@ -82,7 +86,12 @@ extern PCIDevice* firstPCIDevice;
 
 PCIHeader* PciFindHeader(PCIDevice* device);
 
+// Read
 uint16_t PciConfigReadWord(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 uint32_t PciConfigReadDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset);
+
+// Write
+void PciConfigWriteDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset, uint32_t data);
+
 void InitPCI();
 

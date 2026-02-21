@@ -6,6 +6,8 @@
 #include <console.h>
 #include <utils/memory.h>
 #include <malloc.h>
+#include <storage/ahci.h>
+#include <qemu/print.h>
 
 PCIDevice* firstPCIDevice;
 
@@ -50,6 +52,24 @@ uint32_t PciConfigReadDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t of
 	return value;
 }
 
+void PciConfigWriteDword(uint16_t bus, uint8_t slot, uint8_t func, uint8_t offset, uint32_t data)
+{
+	uint32_t address;
+	uint32_t lbus = (uint32_t)bus;
+	uint32_t lslot = (uint32_t)slot;
+	uint32_t lfunc = (uint32_t)func;
+
+	// Create configuration address as per Figure 1
+    address = (uint32_t)((lbus << 16) | (lslot << 11) |
+              (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
+	
+	// Write out the address
+	x86_outl(PCI_CONFIG_ADDRESS, address);
+
+	// Write out the data
+	x86_outl(PCI_CONFIG_DATA, data);
+}
+
 // Check if a device is valid or not
 int PciCheckDevice(uint16_t bus, uint8_t slot, uint8_t func)
 {
@@ -70,9 +90,9 @@ void PciGetHeader(PCIHeader* header, uint16_t bus, uint8_t slot, uint8_t func)
 void PciGetGeneralHeader(PCIGeneralHeader* header, uint16_t bus, uint8_t slot, uint8_t func)
 {
 	uint32_t* headerPtr = (uint32_t*)header;
-	for (uint32_t i = 0x10; i < sizeof(PCIGeneralHeader); i++) // 0x10 is where the BAR start
+	for (uint32_t i = 0x10; i < sizeof(PCIGeneralHeader); i += 4) // 0x10 is where the BAR start
 	{
-		headerPtr[i / 4] = PciConfigReadDword(bus, slot, func, i);
+		headerPtr[(i - 0x10) / 4] = PciConfigReadDword(bus, slot, func, i);
 	}
 }
 
@@ -145,6 +165,7 @@ void InitPCI()
 							if (header->progIF == PCI_AHCI_1_0)
 							{
 								printf("Detected AHCI 1.0 SATA controller.\n");
+								InitAHCI(device);
 							}
 						}
 						break;
