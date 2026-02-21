@@ -8,6 +8,7 @@
 #include <utils/memory.h>
 #include <x86_64/cpu.h>
 #include <x86_64/irq.h>
+#include <task.h>
 
 #define LeftShift 0x2A
 #define RightShift 0x36
@@ -129,7 +130,7 @@ char getKey()
 {
 	while (!g_KeyInfo->key)
 	{
-		asm volatile ("hlt");
+		yield();
 	}
 
 	char c = g_KeyInfo->key;

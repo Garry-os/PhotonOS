@@ -36,5 +36,7 @@ task_t* TaskCreate(void (*entry)(void), uint64_t* pd);
 
 task_t* TaskGet(size_t id);
 
+void yield();
+
 void InitTasks();
 

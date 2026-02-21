@@ -98,6 +98,12 @@ void dummyTaskEntry()
 	}
 }
 
+void yield()
+{
+	// Triggers IRQ 0
+	asm volatile ("int $0x20");
+}
+
 // Initializes & create essential tasks
 void InitTasks()
 {
