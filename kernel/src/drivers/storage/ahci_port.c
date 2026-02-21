@@ -1,5 +1,7 @@
 #include "ahci.h"
 #include <qemu/print.h>
+#include <vmm.h>
+#include <utils/memory.h>
 
 #define HBA_PORT_IPM_ACTIVE 1
 #define HBA_PORT_DET_PRESENT 3
@@ -53,6 +55,7 @@ void AHCI_ProbePort(ahciDevice* ahci)
 			{
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
+					AHCI_PortRebase(ahci, &ahci->hba->ports[i], i);
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);
@@ -72,5 +75,50 @@ void AHCI_ProbePort(ahciDevice* ahci)
 
 		pi >>= 1;
 	}
+}
+
+void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum)
+{
+	AHCI_StopCmd(port);
+
+	// TODO: Utilize memory more efficently
+	
+	// Setup command list base address
+	void* clbVirt = vmm_Allocate(1);
+	void* clbPhys = vmm_VirtToPhys(clbVirt);
+	memset(clbVirt, 0, 1024);
+
+	port->clb = (uint32_t)(uint64_t)clbPhys;
+	port->clbu = (uint32_t)((uint64_t)clbPhys >> 32);
+	ahci->clbVirt[portNum] = clbVirt;
+
+	// Setup FIS
+	void* fisVirt = vmm_Allocate(1);
+	void* fisPhys = vmm_VirtToPhys(fisVirt);
+	memset(fisVirt, 0, 256);
+
+	port->fb = (uint32_t)(uint64_t)fisPhys;
+	port->fbu = (uint32_t)((uint64_t)fisPhys >> 32);
+
+	HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)clbVirt;
+
+	for (int i = 0; i < 32; i++)
+	{
+		cmdHeader[i].prdtl = 8; // 256 bytes per command table
+
+		// Wasted a lot of memory lol
+		void* cmdTableVirt = vmm_Allocate(1);
+		void* cmdTablePhys = vmm_VirtToPhys(cmdTableVirt);
+		memset(cmdTableVirt, 0, 256); // 8 * 32 = 256
+
+		uint64_t base = (uint64_t)cmdTablePhys + (i << 8);
+
+		cmdHeader[i].ctba = (uint32_t)base;
+		cmdHeader[i].ctbau = (uint32_t)(base >> 32);
+		
+		ahci->ctbaVirt[portNum][i] = cmdTableVirt;
+	}
+
+	AHCI_StartCmd(port);
 }
 

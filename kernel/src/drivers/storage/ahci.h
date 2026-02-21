@@ -50,10 +50,42 @@ typedef volatile struct tagHBA_MEM
 	HBA_PORT	ports[1];	// 1 ~ 32
 } HBA_MEM;
 
+typedef struct tagHBA_CMD_HEADER
+{
+	// DW0
+	uint8_t  cfl:5;		// Command FIS length in DWORDS, 2 ~ 16
+	uint8_t  a:1;		// ATAPI
+	uint8_t  w:1;		// Write, 1: H2D, 0: D2H
+	uint8_t  p:1;		// Prefetchable
+
+	uint8_t  r:1;		// Reset
+	uint8_t  b:1;		// BIST
+	uint8_t  c:1;		// Clear busy upon R_OK
+	uint8_t  rsv0:1;		// Reserved
+	uint8_t  pmp:4;		// Port multiplier port
+
+	uint16_t prdtl;		// Physical region descriptor table length in entries
+
+	// DW1
+	volatile
+	uint32_t prdbc;		// Physical region descriptor byte count transferred
+
+	// DW2, 3
+	uint32_t ctba;		// Command table descriptor base address
+	uint32_t ctbau;		// Command table descriptor base address upper 32 bits
+
+	// DW4 - 7
+	uint32_t rsv1[4];	// Reserved
+} HBA_CMD_HEADER;
+
 // AHCI controller
 typedef struct
 {
 	HBA_MEM* hba;
+	uint32_t drive; // Avaliable drives by ports (bitmap)
+	
+	void* clbVirt[32]; // 32 ports
+	void* ctbaVirt[32][32]; // 32 ports, 32 cmd tables per port -> 32 * 32 cmd tables
 } ahciDevice;
 
 // AHCI device types
@@ -67,4 +99,9 @@ void InitAHCI(PCIDevice* device);
 
 // ahci_port.c
 void AHCI_ProbePort(ahciDevice* ahci);
+void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum);
+
+// ahci_cmd.c
+void AHCI_StartCmd(HBA_PORT* port);
+void AHCI_StopCmd(HBA_PORT* port);
 
