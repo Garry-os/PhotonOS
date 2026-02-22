@@ -2,6 +2,7 @@
 #include <qemu/print.h>
 #include <vmm.h>
 #include <utils/memory.h>
+#include <x86_64/timer.h>
 
 #define HBA_PORT_IPM_ACTIVE 1
 #define HBA_PORT_DET_PRESENT 3
@@ -10,6 +11,22 @@
 #define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
 #define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
 #define	SATA_SIG_PM	0x96690101	// Port multiplier
+
+bool AHCI_PortReady(HBA_PORT* port)
+{
+	// Spin for maximum 1 second
+	uint64_t start = ticks;
+	while ((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)))
+	{
+		if (ticks >= start + 1000)
+		{
+			dbg_printf("[AHCI] Port is hung!\n");
+			return false;
+		}
+	}
+
+	return true;
+}
 
 static uint8_t checkType(HBA_PORT* port)
 {
@@ -57,6 +74,18 @@ void AHCI_ProbePort(ahciDevice* ahci)
 			{
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
+
+					// Test reading
+					uint8_t buffer[1024];
+					if (!AHCI_Read(ahci, i, 0, 2, buffer))
+					{
+						dbg_printf("Failed to read!\n");
+					}
+					dbg_printf("Reading test lba 0 result: \n");
+					for (int i = 0; i < 1024; i++)
+					{
+						dbg_printf("%x ", buffer[i]);
+					}
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);

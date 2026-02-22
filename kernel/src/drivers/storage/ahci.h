@@ -1,5 +1,52 @@
 #pragma once
 #include <pci/pci.h>
+#include <stdbool.h>
+
+typedef enum
+{
+	FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
+	FIS_TYPE_REG_D2H	= 0x34,	// Register FIS - device to host
+	FIS_TYPE_DMA_ACT	= 0x39,	// DMA activate FIS - device to host
+	FIS_TYPE_DMA_SETUP	= 0x41,	// DMA setup FIS - bidirectional
+	FIS_TYPE_DATA		= 0x46,	// Data FIS - bidirectional
+	FIS_TYPE_BIST		= 0x58,	// BIST activate FIS - bidirectional
+	FIS_TYPE_PIO_SETUP	= 0x5F,	// PIO setup FIS - device to host
+	FIS_TYPE_DEV_BITS	= 0xA1,	// Set device bits FIS - device to host
+} FIS_TYPE;
+
+typedef struct tagFIS_REG_H2D
+{
+	// DWORD 0
+	uint8_t  fis_type;	// FIS_TYPE_REG_H2D
+
+	uint8_t  pmport:4;	// Port multiplier
+	uint8_t  rsv0:3;		// Reserved
+	uint8_t  c:1;		// 1: Command, 0: Control
+
+	uint8_t  command;	// Command register
+	uint8_t  featurel;	// Feature register, 7:0
+	
+	// DWORD 1
+	uint8_t  lba0;		// LBA low register, 7:0
+	uint8_t  lba1;		// LBA mid register, 15:8
+	uint8_t  lba2;		// LBA high register, 23:16
+	uint8_t  device;		// Device register
+
+	// DWORD 2
+	uint8_t  lba3;		// LBA register, 31:24
+	uint8_t  lba4;		// LBA register, 39:32
+	uint8_t  lba5;		// LBA register, 47:40
+	uint8_t  featureh;	// Feature register, 15:8
+
+	// DWORD 3
+	uint8_t  countl;		// Count register, 7:0
+	uint8_t  counth;		// Count register, 15:8
+	uint8_t  icc;		// Isochronous command completion
+	uint8_t  control;	// Control register
+
+	// DWORD 4
+	uint8_t  rsv1[4];	// Reserved
+} FIS_REG_H2D;
 
 typedef volatile struct tagHBA_PORT
 {
@@ -23,7 +70,6 @@ typedef volatile struct tagHBA_PORT
 	uint32_t rsv1[11];	// 0x44 ~ 0x6F, Reserved
 	uint32_t vendor[4];	// 0x70 ~ 0x7F, vendor specific
 } HBA_PORT;
-
 
 typedef volatile struct tagHBA_MEM
 {
@@ -78,6 +124,34 @@ typedef struct tagHBA_CMD_HEADER
 	uint32_t rsv1[4];	// Reserved
 } HBA_CMD_HEADER;
 
+typedef struct tagHBA_PRDT_ENTRY
+{
+	uint32_t dba;		// Data base address
+	uint32_t dbau;		// Data base address upper 32 bits
+	uint32_t rsv0;		// Reserved
+
+	// DW3
+	uint32_t dbc:22;		// Byte count, 4M max
+	uint32_t rsv1:9;		// Reserved
+	uint32_t i:1;		// Interrupt on completion
+} HBA_PRDT_ENTRY;
+
+typedef struct tagHBA_CMD_TBL
+{
+	// 0x00
+	uint8_t  cfis[64];	// Command FIS
+
+	// 0x40
+	uint8_t  acmd[16];	// ATAPI command, 12 or 16 bytes
+
+	// 0x50
+	uint8_t  rsv[48];	// Reserved
+
+	// 0x80
+	HBA_PRDT_ENTRY	prdt_entry[1];	// Physical region descriptor table entries, 0 ~ 65535
+} HBA_CMD_TBL;
+
+
 // AHCI controller
 typedef struct
 {
@@ -95,13 +169,27 @@ typedef struct
 #define AHCI_DEV_PM     3
 #define AHCI_DEV_SATAPI 4
 
+// Commands
+#define ATA_CMD_READ_DMA 0xC8
+#define ATA_CMD_READ_DMA_EX 0x25
+#define ATA_CMD_WRITE_DMA 0xCA
+#define ATA_CMD_WRITE_DMA_EX 0x35
+
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
+#define HBA_PxIS_TFES (1 << 30) // Task file error
+
 void InitAHCI(PCIDevice* device);
 
 // ahci_port.c
 void AHCI_ProbePort(ahciDevice* ahci);
 void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum);
+bool AHCI_PortReady(HBA_PORT* port);
 
 // ahci_cmd.c
 void AHCI_StartCmd(HBA_PORT* port);
 void AHCI_StopCmd(HBA_PORT* port);
+
+bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void* buffer);
 
