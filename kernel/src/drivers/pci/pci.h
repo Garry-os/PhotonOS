@@ -63,6 +63,8 @@ typedef struct
 // Can access to the header via a function
 typedef struct PCIDevice
 {
+	struct PCIDevice* next;
+
 	uint16_t bus;
 	uint8_t slot;
 	uint8_t func;
@@ -73,8 +75,6 @@ typedef struct PCIDevice
 	// Headers
 	PCIHeader header;
 	PCIGeneralHeader generalHeader;
-
-	struct PCIDevice* next;
 } PCIDevice;
 
 extern PCIDevice* firstPCIDevice;

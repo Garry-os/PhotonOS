@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <storage/ahci.h>
 #include <qemu/print.h>
+#include <utils/llist.h>
 
 PCIDevice* firstPCIDevice;
 
@@ -121,9 +122,7 @@ void InitPCI()
 					continue;
 				}
 
-				PCIDevice* device = (PCIDevice*)malloc(sizeof(PCIDevice));
-				memset(device, 0, sizeof(PCIDevice));
-				
+				PCIDevice* device = (PCIDevice*)LL_Allocate((void**)&firstPCIDevice, sizeof(PCIDevice));
 				device->bus = bus;
 				device->slot = slot;
 				device->func = func;
@@ -133,28 +132,6 @@ void InitPCI()
 
 				device->header = *header;
 				PciGetGeneralHeader(&device->generalHeader, bus, slot, func);
-
-				// Find the last PCI device & assign the PCI device
-				PCIDevice* current = firstPCIDevice;
-				while (1)
-				{
-					if (!current)
-					{
-						// First one
-						firstPCIDevice = device;
-						break;
-					}
-
-					if (!current->next)
-					{
-						// End of linked list
-						current->next = device;
-						break;
-					}
-
-					current = current->next;
-				}
-				device->next = NULL;
 
 				// Initialize PCI devices' drivers
 				switch (header->classId)
