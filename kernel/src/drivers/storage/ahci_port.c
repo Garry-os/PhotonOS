@@ -50,12 +50,13 @@ void AHCI_ProbePort(ahciDevice* ahci)
 	{
 		if (pi & 1)
 		{
+			AHCI_PortRebase(ahci, &ahci->hba->ports[i], i);
+
 			int deviceType = checkType(&ahci->hba->ports[i]);
 			switch (deviceType)
 			{
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
-					AHCI_PortRebase(ahci, &ahci->hba->ports[i], i);
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);
@@ -120,5 +121,8 @@ void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum)
 	}
 
 	AHCI_StartCmd(port);
+
+	// Clear error
+	port->serr = 0xFFFFFFFF;
 }
 

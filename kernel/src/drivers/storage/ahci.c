@@ -67,10 +67,8 @@ void InitAHCI(PCIDevice* device)
 		}
 	}
 
-	// TODO: Reset controller (HBA reset)
-	// TOFIX: After the HBA reset, the port signature became invalid!
-	// hba->ghc |= AHCI_HR;
-	// while (hba->ghc & AHCI_HR);
+	hba->ghc |= AHCI_HR;
+	while (hba->ghc & AHCI_HR);
 
 	// Enable AHCI mode
 	hba->ghc |= AHCI_AE;
