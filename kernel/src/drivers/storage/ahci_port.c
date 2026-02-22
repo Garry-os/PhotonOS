@@ -74,17 +74,14 @@ void AHCI_ProbePort(ahciDevice* ahci)
 			{
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
-
-					// Test reading
-					uint8_t buffer[1024];
-					if (!AHCI_Read(ahci, i, 0, 2, buffer))
+					uint8_t buffer[512] = {0};
+					if (!AHCI_IdentifyATA(ahci, i, buffer))
+						dbg_printf("Failed to identify ATA!\n");
+					dbg_printf("SATA drive's name: ");
+					for (int i = 54; i < 92; i += 2)
 					{
-						dbg_printf("Failed to read!\n");
-					}
-					dbg_printf("Reading test lba 0 result: \n");
-					for (int i = 0; i < 1024; i++)
-					{
-						dbg_printf("%x ", buffer[i]);
+						dbg_printf("%c", buffer[i + 1]);
+						dbg_printf("%c", buffer[i]);
 					}
 					break;
 				case AHCI_DEV_SATAPI:

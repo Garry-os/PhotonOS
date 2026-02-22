@@ -136,6 +136,30 @@ bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void
 	return success;
 }
 
+bool AHCI_IdentifyATA(ahciDevice* ahci, int portNum, void* buffer)
+{
+	HBA_PORT* port = &ahci->hba->ports[portNum];
+	port->is = (uint32_t)-1; // Clear pending interrupts
+	
+	// Find a free command slot
+	int slot = AHCI_FindCmdSlot(port);
+	if (slot == -1)
+		return false;
+
+	// Setup command
+	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(ahci, portNum, slot, 0, buffer, false);
+
+	// Setup FIS
+	AHCI_SetupFIS(cmdTbl, ATA_CMD_IDENTIFY, 0, 0);
+
+	if (!AHCI_PortReady(port))
+		return false;
+	
+	// Issue command
+	bool success = AHCI_IssueCmd(port, slot);
+	return success;
+}
+
 void AHCI_StartCmd(HBA_PORT* port)
 {
 	// Wait until CR is cleared

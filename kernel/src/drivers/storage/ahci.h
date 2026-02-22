@@ -174,6 +174,7 @@ typedef struct
 #define ATA_CMD_READ_DMA_EX 0x25
 #define ATA_CMD_WRITE_DMA 0xCA
 #define ATA_CMD_WRITE_DMA_EX 0x35
+#define ATA_CMD_IDENTIFY 0xEC
 
 #define ATA_DEV_BUSY 0x80
 #define ATA_DEV_DRQ 0x08
@@ -192,4 +193,5 @@ void AHCI_StartCmd(HBA_PORT* port);
 void AHCI_StopCmd(HBA_PORT* port);
 
 bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void* buffer);
+bool AHCI_IdentifyATA(ahciDevice* ahci, int portNum, void* buffer);
 
