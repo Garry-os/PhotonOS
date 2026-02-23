@@ -70,36 +70,15 @@ void start(void)
 	}
 
 	// Reading test
-	// Find SATA drive
-	blockDevice* currentBlock = firstBlock;
-	blockDevice* target = NULL;
-	while (currentBlock)
-	{
-		if (currentBlock->type == BLOCK_TYPE_SATA)
-		{
-			target = currentBlock;
-			break;
-		}
-		currentBlock = currentBlock->next;
-	}
+	// Find first block device
+	blockDevice* target = firstBlock;
 
 	if (!target)
 	{
 		dbg_printf("Can't find SATA drive!\n");
 	}
 
-	// Read
-	uint8_t buffer[512];
-	if (!target->read(target, 0, 1, buffer))
-	{
-		dbg_printf("Failed to read SATA drive!\n");
-	}
-
-	for (int i = 0; i < 512; i++)
-	{
-		dbg_printf("%x ", buffer[i]);
-	}
-
+	dbg_printf("Block name: %s\n", target->name);
 
 	while (1)
 	{

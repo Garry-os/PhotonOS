@@ -15,6 +15,16 @@
 #define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
 #define	SATA_SIG_PM	0x96690101	// Port multiplier
 
+static char* blockNames[] = {
+	"sda",
+	"sdb",
+	"sdc",
+	"sdd",
+	"sde",
+	"sdf"
+};
+static int nameOffset = 0;
+
 bool AHCI_PortReady(HBA_PORT* port)
 {
 	// Spin for maximum 1 second
@@ -86,10 +96,10 @@ void AHCI_ProbePort(ahciDevice* ahci)
 					// Create a block device
 					blockDevice* newBlock = (blockDevice*)LL_Allocate((void**)&firstBlock, sizeof(blockDevice));
 					newBlock->read = AHCI_ReadBlock;
-					newBlock->type = BLOCK_TYPE_SATA;
 					// newBlock->modelName = ; // TODO
 					// newBlock->sectorCount = ; // TODO
-					newBlock->driverPtr = newDrive; // Using port number instead
+					newBlock->driverPtr = newDrive;
+					newBlock->name = blockNames[nameOffset++];
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);
