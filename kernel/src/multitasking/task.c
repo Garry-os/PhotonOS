@@ -5,6 +5,8 @@
 #include <lock.h>
 #include <vmm.h>
 #include <qemu/print.h>
+#include <scheduler.h>
+#include <x86_64/isr.h>
 
 task_t* firstTask;
 task_t* currentTask;
@@ -100,14 +102,17 @@ void dummyTaskEntry()
 
 void yield()
 {
-	// Triggers IRQ 0
-	asm volatile ("int $0x20");
+	// Triggers yield interrupt
+	asm volatile ("int $0x81");
 }
 
 // Initializes & create essential tasks
 void InitTasks()
 {
 	SetupKernelTask();
+
+	// Setup yield interrupt
+	ISR_RegisterHandler(0x81, schedule);
 
 	taskInitialized = true;
 

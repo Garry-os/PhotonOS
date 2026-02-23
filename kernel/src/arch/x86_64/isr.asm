@@ -113,6 +113,10 @@ ISR_NO_ERROR_CODE 45
 ISR_NO_ERROR_CODE 46
 ISR_NO_ERROR_CODE 47
 
+; interrupt 0x81 (yield)
+ISR_NO_ERROR_CODE 129
+global isr129
+
 isr_common:
 	save_context ; Save registers
 

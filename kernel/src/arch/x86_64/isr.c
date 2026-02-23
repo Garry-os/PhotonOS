@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <console.h>
 #include <arch/x86_64/pic.h>
+#include <scheduler.h>
+
+extern void isr129();
 
 ISRHandler g_Handlers[256];
 
@@ -80,6 +83,9 @@ void InitISR()
 	{
 		IDT_SetGate(i, (uint64_t)isr_stub_table[i], IDT_INTERRUPT_GATE);
 	}
+
+	// Yield interrupt
+	IDT_SetGate(0x81, (uint64_t)isr129, IDT_INTERRUPT_GATE);
 
 	InitIDT();
 
