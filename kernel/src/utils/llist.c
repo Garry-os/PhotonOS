@@ -36,3 +36,31 @@ void* LL_Allocate(void** first, size_t size)
 	return target;
 }
 
+// Add an element to the linked list
+// Does not allocate like LL_Allocate()
+void LL_Add(void** first, void* ptr)
+{
+	LLHeader* target = (void*)ptr;
+	LLHeader* current = (LLHeader*)(*first);
+	while (1)
+	{
+		if (current == NULL)
+		{
+			// First one
+			*first = target;
+			break;
+		}
+
+		if (current->next == NULL)
+		{
+			// End of linked list
+			current->next = target;
+			break;
+		}
+
+		current = current->next;
+	}
+
+	target->next = NULL;
+}
+

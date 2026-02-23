@@ -17,4 +17,6 @@ typedef struct blockDevice
 
 extern blockDevice* firstBlock;
 
+void blockRegister(blockDevice* block);
+
 

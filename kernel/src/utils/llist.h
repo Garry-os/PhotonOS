@@ -9,4 +9,5 @@ typedef struct LLHeader
 } LLHeader;
 
 void* LL_Allocate(void** first, size_t size);
+void LL_Add(void** first, void* ptr);
 

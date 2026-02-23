@@ -4,7 +4,6 @@
 #include <utils/memory.h>
 #include <x86_64/timer.h>
 #include <storage/block.h>
-#include <utils/llist.h>
 #include <malloc.h>
 
 #define HBA_PORT_IPM_ACTIVE 1
@@ -99,7 +98,7 @@ void AHCI_ProbePort(ahciDevice* ahci)
 						dbg_printf("Failed to identify ATA at port %d!\n", i);
 
 					// Create a block device
-					blockDevice* newBlock = (blockDevice*)LL_Allocate((void**)&firstBlock, sizeof(blockDevice));
+					blockDevice* newBlock = (blockDevice*)malloc(sizeof(blockDevice));
 					newBlock->read = AHCI_ReadBlock;
 
 					// Copy model name (Convert to big endian)
@@ -112,6 +111,7 @@ void AHCI_ProbePort(ahciDevice* ahci)
 					// newBlock->sectorCount = ; // TODO
 					newBlock->driverPtr = newDrive;
 					newBlock->name = blockNames[nameOffset++];
+					blockRegister(newBlock);
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);

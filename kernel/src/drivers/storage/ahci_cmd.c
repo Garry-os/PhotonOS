@@ -27,7 +27,7 @@ int AHCI_FindCmdSlot(HBA_PORT* port)
 	return -1;
 }
 
-HBA_CMD_TBL* AHCI_SetupCmd(ahciDrive* drive, int portNum, int slot, uint32_t count, void* buffer, bool write)
+HBA_CMD_TBL* AHCI_SetupCmd(ahciDrive* drive, int slot, uint32_t count, void* buffer, bool write)
 {
 	// Setup command header
 	HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)drive->clbVirt;
@@ -114,7 +114,6 @@ bool AHCI_IssueCmd(HBA_PORT* port, int slot)
 
 bool AHCI_Read(ahciDrive* drive, uint64_t lba, uint32_t count, void* buffer)
 {
-	int portNum = drive->portNum;
 	HBA_PORT* port = drive->port;
 	port->is = (uint32_t)-1; // Clear pending interrupts
 	
@@ -124,7 +123,7 @@ bool AHCI_Read(ahciDrive* drive, uint64_t lba, uint32_t count, void* buffer)
 		return false;
 
 	// Setup command
-	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, portNum, slot, count, buffer, false);
+	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, slot, count, buffer, false);
 
 	// Setup FIS
 	AHCI_SetupFIS(cmdTbl, ATA_CMD_READ_DMA_EX, lba, count);
@@ -139,7 +138,6 @@ bool AHCI_Read(ahciDrive* drive, uint64_t lba, uint32_t count, void* buffer)
 
 bool AHCI_IdentifyATA(ahciDrive* drive, void* buffer)
 {
-	int portNum = drive->portNum;
 	HBA_PORT* port = drive->port;
 	port->is = (uint32_t)-1; // Clear pending interrupts
 	
@@ -149,7 +147,7 @@ bool AHCI_IdentifyATA(ahciDrive* drive, void* buffer)
 		return false;
 
 	// Setup command
-	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, portNum, slot, 0, buffer, false);
+	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, slot, 0, buffer, false);
 
 	// Setup FIS
 	AHCI_SetupFIS(cmdTbl, ATA_CMD_IDENTIFY, 0, 0);
