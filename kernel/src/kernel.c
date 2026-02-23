@@ -78,7 +78,7 @@ void start(void)
 		dbg_printf("Can't find SATA drive!\n");
 	}
 
-	dbg_printf("Block name: %s\n", target->name);
+	dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);
 
 	while (1)
 	{

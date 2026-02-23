@@ -75,6 +75,7 @@ static uint8_t checkType(HBA_PORT* port)
 
 void AHCI_ProbePort(ahciDevice* ahci)
 {
+	uint8_t buffer[512];
 	uint32_t pi = ahci->hba->pi;
 	for (int i = 0; i < 32; i++)
 	{
@@ -93,10 +94,21 @@ void AHCI_ProbePort(ahciDevice* ahci)
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
 
+					// Send identify ATA
+					if (!AHCI_IdentifyATA(newDrive, buffer))
+						dbg_printf("Failed to identify ATA at port %d!\n", i);
+
 					// Create a block device
 					blockDevice* newBlock = (blockDevice*)LL_Allocate((void**)&firstBlock, sizeof(blockDevice));
 					newBlock->read = AHCI_ReadBlock;
-					// newBlock->modelName = ; // TODO
+
+					// Copy model name (Convert to big endian)
+					int modelIndex = 0;
+					for (int i = 27 * 2; i < 46 * 2; i += 2)
+					{
+						newBlock->modelName[modelIndex++] = buffer[i + 1];
+						newBlock->modelName[modelIndex++] = buffer[i];
+					}
 					// newBlock->sectorCount = ; // TODO
 					newBlock->driverPtr = newDrive;
 					newBlock->name = blockNames[nameOffset++];
