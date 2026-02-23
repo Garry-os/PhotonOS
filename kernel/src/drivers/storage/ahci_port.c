@@ -3,6 +3,9 @@
 #include <vmm.h>
 #include <utils/memory.h>
 #include <x86_64/timer.h>
+#include <storage/block.h>
+#include <utils/llist.h>
+#include <malloc.h>
 
 #define HBA_PORT_IPM_ACTIVE 1
 #define HBA_PORT_DET_PRESENT 3
@@ -67,22 +70,26 @@ void AHCI_ProbePort(ahciDevice* ahci)
 	{
 		if (pi & 1)
 		{
-			AHCI_PortRebase(ahci, &ahci->hba->ports[i], i);
+			ahciDrive* newDrive = (ahciDrive*)malloc(sizeof(ahciDrive));
+			memset(newDrive, 0, sizeof(ahciDrive));
+			newDrive->portNum = i;
+			newDrive->port = &ahci->hba->ports[i];
+			ahci->drives[i] = newDrive;
+			AHCI_PortRebase(newDrive);
 
 			int deviceType = checkType(&ahci->hba->ports[i]);
 			switch (deviceType)
 			{
 				case AHCI_DEV_SATA:
 					dbg_printf("[AHCI] SATA drive found at port %d\n", i);
-					uint8_t buffer[512] = {0};
-					if (!AHCI_IdentifyATA(ahci, i, buffer))
-						dbg_printf("Failed to identify ATA!\n");
-					dbg_printf("SATA drive's name: ");
-					for (int i = 54; i < 92; i += 2)
-					{
-						dbg_printf("%c", buffer[i + 1]);
-						dbg_printf("%c", buffer[i]);
-					}
+
+					// Create a block device
+					blockDevice* newBlock = (blockDevice*)LL_Allocate((void**)&firstBlock, sizeof(blockDevice));
+					newBlock->read = AHCI_ReadBlock;
+					newBlock->type = BLOCK_TYPE_SATA;
+					// newBlock->modelName = ; // TODO
+					// newBlock->sectorCount = ; // TODO
+					newBlock->driverPtr = newDrive; // Using port number instead
 					break;
 				case AHCI_DEV_SATAPI:
 					dbg_printf("[AHCI] SATAPI drive found at port %d (unsupported)\n", i);
@@ -104,8 +111,9 @@ void AHCI_ProbePort(ahciDevice* ahci)
 	}
 }
 
-void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum)
+void AHCI_PortRebase(ahciDrive* drive)
 {
+	HBA_PORT* port = drive->port;
 	AHCI_StopCmd(port);
 
 	// TODO: Utilize memory more efficently
@@ -117,7 +125,7 @@ void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum)
 
 	port->clb = (uint32_t)(uint64_t)clbPhys;
 	port->clbu = (uint32_t)((uint64_t)clbPhys >> 32);
-	ahci->clbVirt[portNum] = clbVirt;
+	drive->clbVirt = clbVirt;
 
 	// Setup FIS
 	void* fisVirt = vmm_Allocate(1);
@@ -143,7 +151,7 @@ void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum)
 		cmdHeader[i].ctba = (uint32_t)base;
 		cmdHeader[i].ctbau = (uint32_t)(base >> 32);
 		
-		ahci->ctbaVirt[portNum][i] = cmdTableVirt;
+		drive->ctbaVirt[i] = cmdTableVirt;
 	}
 
 	AHCI_StartCmd(port);

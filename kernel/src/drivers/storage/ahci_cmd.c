@@ -27,10 +27,10 @@ int AHCI_FindCmdSlot(HBA_PORT* port)
 	return -1;
 }
 
-HBA_CMD_TBL* AHCI_SetupCmd(ahciDevice* ahci, int portNum, int slot, uint32_t count, void* buffer, bool write)
+HBA_CMD_TBL* AHCI_SetupCmd(ahciDrive* drive, int portNum, int slot, uint32_t count, void* buffer, bool write)
 {
 	// Setup command header
-	HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)ahci->clbVirt[portNum];
+	HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)drive->clbVirt;
 	cmdHeader = &cmdHeader[slot];
 	memset(cmdHeader, 0, sizeof(HBA_CMD_HEADER));
 
@@ -38,12 +38,12 @@ HBA_CMD_TBL* AHCI_SetupCmd(ahciDevice* ahci, int portNum, int slot, uint32_t cou
 	cmdHeader->w = (uint8_t)write;
 	cmdHeader->prdtl = 1; // TODO
 
-	void* ctbaVirt = ahci->ctbaVirt[portNum][slot];
+	void* ctbaVirt = drive->ctbaVirt[slot];
 	void* ctbaPhys = vmm_VirtToPhys(ctbaVirt);
 	cmdHeader->ctba = (uint32_t)(uint64_t)ctbaPhys;
 	cmdHeader->ctbau = (uint32_t)((uint64_t)ctbaPhys >> 32);
 
-	HBA_CMD_TBL* cmdTbl = (HBA_CMD_TBL*)((uint64_t)ahci->ctbaVirt[portNum][slot]);
+	HBA_CMD_TBL* cmdTbl = (HBA_CMD_TBL*)((uint64_t)ctbaVirt);
 	memset(cmdTbl, 0, sizeof(HBA_CMD_TBL) + cmdHeader->prdtl * sizeof(HBA_PRDT_ENTRY));
 
 	// Setup buffer
@@ -112,9 +112,10 @@ bool AHCI_IssueCmd(HBA_PORT* port, int slot)
 	return true;
 }
 
-bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void* buffer)
+bool AHCI_Read(ahciDrive* drive, uint64_t lba, uint32_t count, void* buffer)
 {
-	HBA_PORT* port = &ahci->hba->ports[portNum];
+	int portNum = drive->portNum;
+	HBA_PORT* port = drive->port;
 	port->is = (uint32_t)-1; // Clear pending interrupts
 	
 	// Find a free command slot
@@ -123,7 +124,7 @@ bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void
 		return false;
 
 	// Setup command
-	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(ahci, portNum, slot, count, buffer, false);
+	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, portNum, slot, count, buffer, false);
 
 	// Setup FIS
 	AHCI_SetupFIS(cmdTbl, ATA_CMD_READ_DMA_EX, lba, count);
@@ -136,9 +137,10 @@ bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void
 	return success;
 }
 
-bool AHCI_IdentifyATA(ahciDevice* ahci, int portNum, void* buffer)
+bool AHCI_IdentifyATA(ahciDrive* drive, void* buffer)
 {
-	HBA_PORT* port = &ahci->hba->ports[portNum];
+	int portNum = drive->portNum;
+	HBA_PORT* port = drive->port;
 	port->is = (uint32_t)-1; // Clear pending interrupts
 	
 	// Find a free command slot
@@ -147,7 +149,7 @@ bool AHCI_IdentifyATA(ahciDevice* ahci, int portNum, void* buffer)
 		return false;
 
 	// Setup command
-	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(ahci, portNum, slot, 0, buffer, false);
+	HBA_CMD_TBL* cmdTbl = AHCI_SetupCmd(drive, portNum, slot, 0, buffer, false);
 
 	// Setup FIS
 	AHCI_SetupFIS(cmdTbl, ATA_CMD_IDENTIFY, 0, 0);

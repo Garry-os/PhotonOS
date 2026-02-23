@@ -1,6 +1,7 @@
 #pragma once
 #include <pci/pci.h>
 #include <stdbool.h>
+#include <storage/block.h>
 
 typedef enum
 {
@@ -151,15 +152,22 @@ typedef struct tagHBA_CMD_TBL
 	HBA_PRDT_ENTRY	prdt_entry[1];	// Physical region descriptor table entries, 0 ~ 65535
 } HBA_CMD_TBL;
 
+// Each port
+typedef struct
+{
+	int portNum;
+	HBA_PORT* port;
+
+	void* clbVirt;
+	void* ctbaVirt[32]; // 32 cmd tables per port
+} ahciDrive;
 
 // AHCI controller
 typedef struct
 {
 	HBA_MEM* hba;
 	uint32_t drive; // Avaliable drives by ports (bitmap)
-	
-	void* clbVirt[32]; // 32 ports
-	void* ctbaVirt[32][32]; // 32 ports, 32 cmd tables per port -> 32 * 32 cmd tables
+	ahciDrive* drives[32];
 } ahciDevice;
 
 // AHCI device types
@@ -181,17 +189,19 @@ typedef struct
 
 #define HBA_PxIS_TFES (1 << 30) // Task file error
 
+// ahci.c
 void InitAHCI(PCIDevice* device);
+bool AHCI_ReadBlock(blockDevice* block, uint64_t lba, uint32_t count, void* buffer);
 
 // ahci_port.c
 void AHCI_ProbePort(ahciDevice* ahci);
-void AHCI_PortRebase(ahciDevice* ahci, HBA_PORT* port, int portNum);
+void AHCI_PortRebase(ahciDrive* drive);
 bool AHCI_PortReady(HBA_PORT* port);
 
 // ahci_cmd.c
 void AHCI_StartCmd(HBA_PORT* port);
 void AHCI_StopCmd(HBA_PORT* port);
 
-bool AHCI_Read(ahciDevice* ahci, int portNum, uint64_t lba, uint32_t count, void* buffer);
-bool AHCI_IdentifyATA(ahciDevice* ahci, int portNum, void* buffer);
+bool AHCI_Read(ahciDrive* drive, uint64_t lba, uint32_t count, void* buffer);
+bool AHCI_IdentifyATA(ahciDrive* drive, void* buffer);
 

@@ -67,6 +67,7 @@ void InitAHCI(PCIDevice* device)
 		}
 	}
 
+	// Reset the controller (full HBA reset)
 	hba->ghc |= AHCI_HR;
 	while (hba->ghc & AHCI_HR);
 
@@ -74,5 +75,10 @@ void InitAHCI(PCIDevice* device)
 	hba->ghc |= AHCI_AE;
 
 	AHCI_ProbePort(ahci);
+}
+
+bool AHCI_ReadBlock(blockDevice* block, uint64_t lba, uint32_t count, void* buffer)
+{
+	return AHCI_Read((ahciDrive*)block->driverPtr, lba, count, buffer);
 }
 
