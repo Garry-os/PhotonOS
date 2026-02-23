@@ -73,12 +73,21 @@ void start(void)
 	// Find first block device
 	blockDevice* target = firstBlock;
 
-	if (!target)
+	while (target)
 	{
-		dbg_printf("Can't find SATA drive!\n");
-	}
+		dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);
 
-	dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);
+		// Test reading partition
+		if (target->type == DEV_TYPE_PARTITION)
+		{
+			uint8_t buffer[512];
+			target->read(target, 0, 1, buffer);
+
+			for (int i = 0; i < 512; i++)
+				dbg_printf("%c", buffer[i]);
+		}
+		target = target->next;
+	}
 
 	while (1)
 	{

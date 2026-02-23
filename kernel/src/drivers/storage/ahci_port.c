@@ -111,6 +111,7 @@ void AHCI_ProbePort(ahciDevice* ahci)
 					// newBlock->sectorCount = ; // TODO
 					newBlock->driverPtr = newDrive;
 					newBlock->name = blockNames[nameOffset++];
+					newBlock->type = DEV_TYPE_DISK;
 					blockRegister(newBlock);
 					break;
 				case AHCI_DEV_SATAPI:
