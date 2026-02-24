@@ -20,6 +20,7 @@
 #include <task.h>
 #include <pci/pci.h>
 #include <storage/block.h>
+#include <fat32/fat32.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -77,14 +78,10 @@ void start(void)
 	{
 		dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);
 
-		// Test reading partition
+		// Mount the partition
 		if (target->type == DEV_TYPE_PARTITION)
 		{
-			uint8_t buffer[512];
-			target->read(target, 0, 1, buffer);
-
-			for (int i = 0; i < 512; i++)
-				dbg_printf("%c", buffer[i]);
+			fat32_mount(target);
 		}
 		target = target->next;
 	}
