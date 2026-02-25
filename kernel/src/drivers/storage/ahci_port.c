@@ -169,7 +169,7 @@ void AHCI_PortRebase(ahciDrive* drive)
 		void* cmdTablePhys = vmm_VirtToPhys(cmdTableVirt);
 		memset(cmdTableVirt, 0, 256); // 8 * 32 = 256
 
-		uint64_t base = (uint64_t)cmdTablePhys + (i << 8);
+		uint64_t base = (uint64_t)cmdTablePhys;
 
 		cmdHeader[i].ctba = (uint32_t)base;
 		cmdHeader[i].ctbau = (uint32_t)(base >> 32);

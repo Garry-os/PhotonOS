@@ -74,6 +74,8 @@ void start(void)
 	// Find first block device
 	blockDevice* target = firstBlock;
 
+	uint8_t buffer[512];
+
 	while (target)
 	{
 		dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);
@@ -85,6 +87,11 @@ void start(void)
 		}
 		target = target->next;
 	}
+
+	// Read a file
+	fat32_read("/hello.txt", buffer);
+	// Print out content
+	dbg_printf("Content: %s\n", buffer);
 
 	while (1)
 	{

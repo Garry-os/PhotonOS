@@ -34,7 +34,7 @@ HBA_CMD_TBL* AHCI_SetupCmd(ahciDrive* drive, int slot, uint32_t count, void* buf
 	cmdHeader = &cmdHeader[slot];
 	memset(cmdHeader, 0, sizeof(HBA_CMD_HEADER));
 
-	cmdHeader->cfl = sizeof(FIS_TYPE_REG_H2D) / sizeof(uint32_t); // Command FIS size
+	cmdHeader->cfl = sizeof(FIS_REG_H2D) / sizeof(uint32_t); // Command FIS size
 	cmdHeader->w = (uint8_t)write;
 	cmdHeader->prdtl = 1; // TODO
 
@@ -60,7 +60,7 @@ HBA_CMD_TBL* AHCI_SetupCmd(ahciDrive* drive, int slot, uint32_t count, void* buf
 void AHCI_SetupFIS(HBA_CMD_TBL* cmdTbl, uint8_t command, uint64_t lba, uint32_t count)
 {
 	FIS_REG_H2D* cmdFis = (FIS_REG_H2D*)&cmdTbl->cfis;
-
+	memset(cmdFis, 0, sizeof(FIS_REG_H2D));
 	cmdFis->fis_type = FIS_TYPE_REG_H2D;
 	cmdFis->c = 1;
 	cmdFis->command = command;
