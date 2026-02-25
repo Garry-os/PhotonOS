@@ -90,9 +90,9 @@ void start(void)
 
 	// Read a file
 	fat32Handle* file = fat32_open("/hello.txt");
-	fat32_read(file, buffer);
-	// Print out content
-	dbg_printf("Content: %s\n", buffer);
+	fat32_read(file, 100, buffer);
+
+	dbg_printf("%s", buffer);
 
 	while (1)
 	{

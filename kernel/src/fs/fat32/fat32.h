@@ -88,6 +88,8 @@ typedef struct
 typedef struct
 {
 	uint32_t firstCluster;
+	uint32_t currentCluster;
+	uint32_t currentOffset;
 	uint32_t size;
 } fat32Handle;
 
@@ -109,7 +111,7 @@ bool fat32_mount(blockDevice* dev);
 fat32Handle* fat32_open(const char* path);
 void fat32_close(fat32Handle* handle);
 
-uint32_t fat32_read(fat32Handle* handle, void* buffer);
+uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer);
 
 // fat32_path.c
 bool fat32_traverse(const char* path, fat32DirEntry* out);

@@ -7,6 +7,7 @@
 #include <console.h>
 #include <qemu/print.h>
 #include <utils/memory.h>
+#include <utils/math.h>
 
 fat32_data* g_data;
 
@@ -60,6 +61,8 @@ fat32Handle* fat32_open(const char* path)
 	fat32Handle* handle = (fat32Handle*)malloc(sizeof(fat32Handle));
 	handle->firstCluster = (entry.firstClusterHigh << 16) | (entry.firstClusterLow & 0xFFFF);
 	handle->size = entry.size;
+	handle->currentCluster = handle->firstCluster;
+	handle->currentOffset = 0;
 
 	return handle;
 }
@@ -71,12 +74,23 @@ void fat32_close(fat32Handle* handle)
 }
 
 // Return bytes read successfully
-uint32_t fat32_read(fat32Handle* handle, void* buffer)
+uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer)
 {
-	uint32_t remaining = handle->size;
-	uint32_t cluster = handle->firstCluster;
+	uint32_t remaining = min(limit, handle->size - handle->currentOffset);
+
+	if (!remaining)
+	{
+		// EOF
+		return 0;
+	}
+
+	uint32_t offset = handle->currentOffset;
+	uint32_t cluster = handle->currentCluster;
 	uint8_t* u8Buffer = (uint8_t*)buffer;
 	uint8_t tmpBuffer[SECTOR_SIZE];
+
+	uint32_t clusterSize = g_data->bootSector.data.sectorsPerCluster * SECTOR_SIZE;
+	uint32_t skippedBytes = offset % clusterSize;
 
 	while (cluster < FAT32_EOC && remaining > 0)
 	{
@@ -90,13 +104,31 @@ uint32_t fat32_read(fat32Handle* handle, void* buffer)
 				goto end;
 			}
 
-			uint8_t toCopy = remaining > SECTOR_SIZE ? SECTOR_SIZE : remaining;
-			memcpy(u8Buffer, tmpBuffer, toCopy);
+			uint8_t* tmpBufferPtr = tmpBuffer;
+
+			// Calculate how many bytes to copy
+			uint32_t toCopy = SECTOR_SIZE;
+			if (skippedBytes >= SECTOR_SIZE)
+			{
+				skippedBytes -= SECTOR_SIZE;
+				continue;
+			}
+			else if (skippedBytes > 0)
+			{
+				tmpBufferPtr += skippedBytes;
+				toCopy -= skippedBytes;
+				skippedBytes = 0;
+			}
+
+			toCopy = min(toCopy, remaining);
+			memcpy(u8Buffer, tmpBufferPtr, toCopy);
 			u8Buffer += toCopy;
 			remaining -= toCopy;
+			handle->currentOffset += toCopy;
 		}
 
 		cluster = fat32_nextCluster(cluster);
+		handle->currentCluster = cluster;
 	}
 
 end:
