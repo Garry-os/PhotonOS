@@ -85,6 +85,12 @@ typedef struct
 	blockDevice* dev;
 } fat32_data;
 
+typedef struct
+{
+	uint32_t firstCluster;
+	uint32_t size;
+} fat32Handle;
+
 typedef enum
 {
     FAT_ATTRIBUTE_READ_ONLY         = 0x01,
@@ -99,7 +105,11 @@ typedef enum
 extern fat32_data* g_data;
 
 bool fat32_mount(blockDevice* dev);
-uint32_t fat32_read(const char* path, void* buffer);
+
+fat32Handle* fat32_open(const char* path);
+void fat32_close(fat32Handle* handle);
+
+uint32_t fat32_read(fat32Handle* handle, void* buffer);
 
 // fat32_path.c
 bool fat32_traverse(const char* path, fat32DirEntry* out);

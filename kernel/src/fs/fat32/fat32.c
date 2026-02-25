@@ -48,18 +48,33 @@ error:
 	return false;
 }
 
-// Return bytes read successfully
-uint32_t fat32_read(const char* path, void* buffer)
+fat32Handle* fat32_open(const char* path)
 {
-	// Find the file first
+	// Traverse the file path
 	fat32DirEntry entry;
 	if (!fat32_traverse(path, &entry))
 	{
-		return 0;
+		return NULL;
 	}
 
-	uint32_t remaining = entry.size;
-	uint32_t cluster = (entry.firstClusterHigh << 16) | (entry.firstClusterLow & 0xFFFF);
+	fat32Handle* handle = (fat32Handle*)malloc(sizeof(fat32Handle));
+	handle->firstCluster = (entry.firstClusterHigh << 16) | (entry.firstClusterLow & 0xFFFF);
+	handle->size = entry.size;
+
+	return handle;
+}
+
+void fat32_close(fat32Handle* handle)
+{
+	free(handle);
+	handle = NULL;
+}
+
+// Return bytes read successfully
+uint32_t fat32_read(fat32Handle* handle, void* buffer)
+{
+	uint32_t remaining = handle->size;
+	uint32_t cluster = handle->firstCluster;
 	uint8_t* u8Buffer = (uint8_t*)buffer;
 	uint8_t tmpBuffer[SECTOR_SIZE];
 
