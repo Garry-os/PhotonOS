@@ -88,11 +88,18 @@ void start(void)
 		target = target->next;
 	}
 
-	// Read a file
-	fat32Handle* file = fat32_open("/hello.txt");
-	fat32_read(file, 100, buffer);
+	// Read a directory
+	fat32Handle* file = fat32_open("/stuff");
 
-	dbg_printf("%s", buffer);
+	fat32DirEntry entry;
+	while (fat32_readEntry(file, &entry))
+	{
+		for (int i = 0; i < 11; i++)
+			dbg_printf("%c", entry.name[i]);
+		dbg_printf("\n");
+	}
+
+	fat32_close(file);
 
 	while (1)
 	{

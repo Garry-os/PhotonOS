@@ -70,6 +70,18 @@ typedef struct
 
 typedef struct
 {
+	uint32_t firstCluster;
+	uint32_t currentCluster;
+	uint32_t currentOffset;
+	uint32_t currentSector; // Current sector in a cluster
+	uint32_t size;
+
+	uint8_t attributes;
+	uint8_t buffer[SECTOR_SIZE]; // Buffer for reading sector
+} fat32Handle;
+
+typedef struct
+{
 	union
 	{
 		fat32_bs data;
@@ -81,17 +93,11 @@ typedef struct
 
 	uint32_t fatStartLba;
 	uint32_t clusterStartLba;
+	fat32Handle* root; // root is a special file
 
 	blockDevice* dev;
 } fat32_data;
 
-typedef struct
-{
-	uint32_t firstCluster;
-	uint32_t currentCluster;
-	uint32_t currentOffset;
-	uint32_t size;
-} fat32Handle;
 
 typedef enum
 {
@@ -104,6 +110,10 @@ typedef enum
     FAT_ATTRIBUTE_LFN               = FAT_ATTRIBUTE_READ_ONLY | FAT_ATTRIBUTE_HIDDEN | FAT_ATTRIBUTE_SYSTEM | FAT_ATTRIBUTE_VOLUME_ID
 };
 
+// FAT file handle attributes
+#define FAT_HANDLE_DIR (1 << 0)
+#define FAT_HANDLE_ROOT (1 << 1)
+
 extern fat32_data* g_data;
 
 bool fat32_mount(blockDevice* dev);
@@ -112,6 +122,7 @@ fat32Handle* fat32_open(const char* path);
 void fat32_close(fat32Handle* handle);
 
 uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer);
+bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry);
 
 // fat32_path.c
 bool fat32_traverse(const char* path, fat32DirEntry* out);

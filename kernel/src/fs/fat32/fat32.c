@@ -41,6 +41,22 @@ bool fat32_mount(blockDevice* dev)
 
 	g_data->dev = dev;
 
+	// Setup the root directory file
+	g_data->root = (fat32Handle*)malloc(sizeof(fat32Handle));
+	g_data->root->firstCluster = g_data->bootSector.data.ebr.rootDirCluster;
+	g_data->root->currentSector = g_data->clusterStartLba;
+	g_data->root->size = sizeof(fat32DirEntry) * g_data->bootSector.data.rootDirEntries;
+	g_data->root->currentCluster = g_data->root->firstCluster;
+	g_data->root->currentOffset = 0;
+	g_data->root->attributes = FAT_HANDLE_ROOT | FAT_HANDLE_DIR;
+
+	// Read the first cluster into the buffer
+	if (!g_data->dev->read(g_data->dev, fat32_clusterToLba(g_data->bootSector.data.ebr.rootDirCluster), 1, g_data->root->buffer))
+	{
+		dbg_printf("[FAT32] Failed to read LBA %\n", g_data->clusterStartLba);
+		return false;
+	}
+
 	printf("Mounted dev %s, FAT version %d.%d\n", dev->name, g_data->majorVersion, g_data->minorVersion);
 	dbg_printf("[FAT32] fat start LBA: %d, cluster start LBA: %d\n", g_data->fatStartLba, g_data->clusterStartLba);
 	return true;
@@ -58,17 +74,49 @@ fat32Handle* fat32_open(const char* path)
 		return NULL;
 	}
 
+	// Check if it's root directory
+	if (path[0] == '/' && path[1] == '\0')
+	{
+		fat32_close(g_data->root);
+		return g_data->root;
+	}
+
 	fat32Handle* handle = (fat32Handle*)malloc(sizeof(fat32Handle));
 	handle->firstCluster = (entry.firstClusterHigh << 16) | (entry.firstClusterLow & 0xFFFF);
 	handle->size = entry.size;
 	handle->currentCluster = handle->firstCluster;
 	handle->currentOffset = 0;
+	handle->currentSector = 0;
+	handle->attributes = 0;
+
+	if ((entry.attributes & FAT_ATTRIBUTE_DIRECTORY) > 0)
+	{
+		handle->attributes |= FAT_HANDLE_DIR;
+	}
+
+	// Read the first cluster into the buffer
+	if (!g_data->dev->read(g_data->dev, fat32_clusterToLba(handle->currentCluster), 1, handle->buffer))
+	{
+		dbg_printf("[FAT32] Failed to read LBA %d\n", fat32_clusterToLba(handle->currentCluster));
+		fat32_close(handle);
+		return NULL;
+	}
 
 	return handle;
 }
 
 void fat32_close(fat32Handle* handle)
 {
+	if ((handle->attributes & FAT_HANDLE_ROOT) > 0)
+	{
+		// Root directory can't be close
+		// Only reset it here
+		handle->currentCluster = handle->firstCluster;
+		handle->currentOffset = 0;
+		handle->currentSector = g_data->clusterStartLba;
+		return;
+	}
+
 	free(handle);
 	handle = NULL;
 }
@@ -76,62 +124,91 @@ void fat32_close(fat32Handle* handle)
 // Return bytes read successfully
 uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer)
 {
-	uint32_t remaining = min(limit, handle->size - handle->currentOffset);
-
-	if (!remaining)
-	{
-		// EOF
-		return 0;
-	}
-
-	uint32_t offset = handle->currentOffset;
-	uint32_t cluster = handle->currentCluster;
 	uint8_t* u8Buffer = (uint8_t*)buffer;
+
+	uint32_t remaining = limit;
 	uint8_t tmpBuffer[SECTOR_SIZE];
 
-	uint32_t clusterSize = g_data->bootSector.data.sectorsPerCluster * SECTOR_SIZE;
-	uint32_t skippedBytes = offset % clusterSize;
-
-	while (cluster < FAT32_EOC && remaining > 0)
+	// Directory size is 0 (in some cases)
+	if (!(handle->attributes & FAT_HANDLE_DIR) || ((handle->attributes & FAT_HANDLE_DIR) > 0 && handle->size != 0))
 	{
-		uint32_t lba = fat32_clusterToLba(cluster);
-		
-		for (int i = 0; i < g_data->bootSector.data.sectorsPerCluster && remaining > 0; i++)
-		{
-			if (!g_data->dev->read(g_data->dev, lba + i, 1, tmpBuffer))
-			{
-				dbg_printf("[FAT32] Failed to read LBA %d\n", lba);
-				goto end;
-			}
-
-			uint8_t* tmpBufferPtr = tmpBuffer;
-
-			// Calculate how many bytes to copy
-			uint32_t toCopy = SECTOR_SIZE;
-			if (skippedBytes >= SECTOR_SIZE)
-			{
-				skippedBytes -= SECTOR_SIZE;
-				continue;
-			}
-			else if (skippedBytes > 0)
-			{
-				tmpBufferPtr += skippedBytes;
-				toCopy -= skippedBytes;
-				skippedBytes = 0;
-			}
-
-			toCopy = min(toCopy, remaining);
-			memcpy(u8Buffer, tmpBufferPtr, toCopy);
-			u8Buffer += toCopy;
-			remaining -= toCopy;
-			handle->currentOffset += toCopy;
-		}
-
-		cluster = fat32_nextCluster(cluster);
-		handle->currentCluster = cluster;
+		remaining = min(remaining, handle->size - handle->currentOffset);
 	}
+	
+	while (remaining > 0)
+	{
+		uint32_t leftOffset = handle->currentOffset % SECTOR_SIZE;
+		uint32_t left = SECTOR_SIZE - leftOffset; // How many bytes left in a sector?
+		uint32_t take = min(remaining, left);
+
+		// Copy the data into the buffer
+		memcpy(u8Buffer, handle->buffer + leftOffset, take);
+		u8Buffer += take;
+		handle->currentOffset += take;
+		remaining -= take;
+
+		// If we need to read more sectors?
+		if (left == take)
+		{
+			if ((handle->attributes & FAT_HANDLE_ROOT) > 0)
+			{
+				handle->currentSector++;
+
+				if (!g_data->dev->read(g_data->dev, handle->currentSector, 1, handle->buffer))
+				{
+					dbg_printf("[FAT32] Failed to read LBA %d\n", handle->currentSector);
+					goto end;
+				}
+			}
+			else
+			{
+				// Calculate & read next sector
+				if (++handle->currentSector >= g_data->bootSector.data.sectorsPerCluster)
+				{
+					// Ran out of sectors in a cluster
+					// Need to calculate for the next cluster in order to read
+					handle->currentSector = 0;
+					handle->currentCluster = fat32_nextCluster(handle->currentCluster);
+				}
+
+				// Check for no more clusters & bad cluster
+				if (handle->currentCluster >= FAT32_EOC || handle->currentCluster == FAT32_BAD_CLUSTER)
+				{
+					// EOF
+					handle->size = handle->currentOffset;
+					goto end;
+				}
+
+				// Read next sector
+				uint32_t lba = handle->currentSector + fat32_clusterToLba(handle->currentCluster);
+				if (!g_data->dev->read(g_data->dev, lba, 1, handle->buffer))
+				{
+					dbg_printf("[FAT32] Failed to read lba %d\n", lba);
+					goto end;
+				}
+			}
+		}
+	}
+	
 
 end:
 	return u8Buffer - (uint8_t*)buffer;
+}
+
+bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry)
+{
+	bool success = fat32_read(handle, sizeof(fat32DirEntry), entry) == sizeof(fat32DirEntry);
+	if (!success)
+	{
+		return false;
+	}
+
+	if (entry->name[0] == 0x00)
+	{
+		// No more entries
+		return false;
+	}
+
+	return true;
 }
 
