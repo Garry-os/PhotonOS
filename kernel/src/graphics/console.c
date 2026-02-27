@@ -93,13 +93,13 @@ void putc(char c)
 			break;
 	}
 
-	if (g_PosX >= g_FbInfo.width)
+	if ((uint64_t)g_PosX >= g_FbInfo.width)
 	{
 		g_PosX = 0;
 		g_PosY += g_psf->height;
 	}
 
-	if (g_PosY + g_psf->height >= g_FbInfo.height)
+	if ((uint64_t)g_PosY + g_psf->height >= g_FbInfo.height)
 	{
 		clearScreen();
 	}

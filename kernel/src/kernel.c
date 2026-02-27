@@ -74,8 +74,6 @@ void start(void)
 	// Find first block device
 	blockDevice* target = firstBlock;
 
-	uint8_t buffer[512];
-
 	while (target)
 	{
 		dbg_printf("Block name: %s, model: %s\n", target->name, target->modelName);

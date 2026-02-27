@@ -19,7 +19,7 @@ void InitPMM()
 	void* bitmapPtr = NULL;
 
 	// Find a memory region that fits the bitmap's buffer
-	for (int i = 0; i < g_BootInfo.mmNumEntries; i++)
+	for (uint64_t i = 0; i < g_BootInfo.mmNumEntries; i++)
 	{
 		struct limine_memmap_entry* entry = g_BootInfo.mmEntries[i];
 		if (entry->type == LIMINE_MEMMAP_USABLE)
@@ -45,7 +45,7 @@ void InitPMM()
 	// Loop through the entire memory map again
 	// to mark the page if it is usable or not
 	memset(g_Bitmap.buffer, 0xFF, bitmapSize);
-	for (int i = 0; i < g_BootInfo.mmNumEntries; i++)
+	for (uint64_t i = 0; i < g_BootInfo.mmNumEntries; i++)
 	{
 		struct limine_memmap_entry* entry = g_BootInfo.mmEntries[i];
 
