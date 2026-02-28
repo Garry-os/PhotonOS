@@ -40,15 +40,50 @@ bool fat32_traverse(const char* path, fat32DirEntry* out)
 		path++;
 	}
 
-	// TODO: Directory traversal
-	//
-	
 	fat32Handle* current = g_data->root; // Current directory
-	
-	if (!fat32_findEntry(current, path, &entry))
+	bool isLast = false;
+
+	char name[256];
+
+	while (*path)
 	{
-		dbg_printf("[FAT32] Directory entry not found: %s\n", path);
-		return false;
+		const char* delim = strchr(path, '/');
+		if (delim != NULL)
+		{
+			// Still more subdirectories...
+			memcpy(name, path, delim - path);
+			name[delim - path] = '\0';
+			path = delim + 1;
+		}
+		else
+		{
+			// Reached the file, or directory
+			unsigned len = strlen(path);
+			memcpy(name, path, len);
+			name[len] = '\0';
+			path += len;
+			isLast = true;
+		}
+
+		if (!fat32_findEntry(current, name, &entry))
+		{
+			dbg_printf("[FAT32] Directory entry not found: %s\n", name);
+			fat32_close(current);
+			return false;
+		}
+
+		fat32_close(current);
+
+		// Check if it's a directory
+		if (!isLast && !(current->attributes & FAT_HANDLE_DIR))
+		{
+			fat32_close(current);
+			dbg_printf("[FAT32] %s isn't a directory\n", name);
+			return false;
+		}
+
+		// Open a new directory
+		current = fat32_openEntry(entry);
 	}
 
 	*out = entry;

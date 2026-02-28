@@ -81,6 +81,11 @@ fat32Handle* fat32_open(const char* path)
 		return g_data->root;
 	}
 
+	return fat32_openEntry(entry);
+}
+
+fat32Handle* fat32_openEntry(fat32DirEntry entry)
+{
 	fat32Handle* handle = (fat32Handle*)malloc(sizeof(fat32Handle));
 	handle->firstCluster = (entry.firstClusterHigh << 16) | (entry.firstClusterLow & 0xFFFF);
 	handle->size = entry.size;

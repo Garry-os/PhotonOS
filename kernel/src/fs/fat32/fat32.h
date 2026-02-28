@@ -137,6 +137,7 @@ extern fat32_data* g_data;
 bool fat32_mount(blockDevice* dev);
 
 fat32Handle* fat32_open(const char* path);
+fat32Handle* fat32_openEntry(fat32DirEntry entry);
 void fat32_close(fat32Handle* handle);
 
 uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer);

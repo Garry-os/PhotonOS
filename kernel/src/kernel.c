@@ -21,6 +21,7 @@
 #include <pci/pci.h>
 #include <storage/block.h>
 #include <fat32/fat32.h>
+#include <utils/memory.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -98,7 +99,8 @@ void start(void)
 	fat32_close(dir);
 
 	// Read a file
-	fat32Handle* file = fat32_open("hahaverylongfile.txt");
+	fat32Handle* file = fat32_open("stuff/hello.txt");
+	memset(buffer, 0, 256);
 	fat32_read(file, 256, buffer);
 
 	dbg_printf("File content:\n%s\n", buffer);
