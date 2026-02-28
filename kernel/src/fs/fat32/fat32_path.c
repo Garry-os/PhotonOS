@@ -4,17 +4,16 @@
 #include "fat32.h"
 #include <qemu/print.h>
 #include <utils/memory.h>
+#include <utils/string.h>
 
 bool fat32_findEntry(fat32Handle* handle, const char* name, fat32DirEntry* out)
 {
-	// Get short name
-	char shortName[12];
-	fat32_NameToShort(name, shortName);
+	uint8_t nameBuffer[256];
 
 	fat32DirEntry entry;
-	while (fat32_readEntry(handle, &entry))
+	while (fat32_readLFN(handle, nameBuffer, &entry))
 	{
-		if (memcmp(shortName, entry.name, 11) == 0)
+		if (strcmp((char*)nameBuffer, name) == 0)
 		{
 			*out = entry;
 			return true;

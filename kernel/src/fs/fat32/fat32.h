@@ -25,6 +25,24 @@ typedef struct
 	uint32_t size; // File size in bytes
 } __attribute__((packed)) fat32DirEntry;
 
+// FAT32 LFN
+#define FAT32_LFN_MAX_INDEX   20
+#define FAT32_LFN_MAX     256  // Included NULL termination
+#define FAT32_ORDER_FIRST 0x01 // First LFN entry
+#define FAT32_ORDER_LAST  0x40 // Last LFN entry
+
+typedef struct
+{
+	uint8_t order;
+	uint16_t chars1[5];
+	uint8_t attribute; // Always 0x0F (LFN)
+	uint8_t type; // Zero for name entries
+	uint8_t checksum;
+	uint16_t chars2[6];
+	uint16_t _reserved;
+	uint16_t chars3[2];
+} __attribute__((packed)) fat32LFNEntry;
+
 // FAT EBR (Include FAT12/FAT16 EBR with FAT32 EBR)
 typedef struct
 {
@@ -123,6 +141,7 @@ void fat32_close(fat32Handle* handle);
 
 uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer);
 bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry);
+bool fat32_readLFN(fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out);
 
 // fat32_path.c
 bool fat32_traverse(const char* path, fat32DirEntry* out);
@@ -132,4 +151,6 @@ uint32_t fat32_clusterToLba(uint32_t cluster);
 uint32_t fat32_nextCluster(uint32_t cluster);
 
 void fat32_NameToShort(const char* name, char shortName[12]);
+
+void fat32_copyLFN(uint8_t* buffer, fat32LFNEntry* lfn, int index);
 

@@ -87,15 +87,21 @@ void start(void)
 	}
 
 	// Read a directory
-	fat32Handle* file = fat32_open("/stuff");
+	fat32Handle* dir = fat32_open("/");
 
-	fat32DirEntry entry;
-	while (fat32_readEntry(file, &entry))
+	uint8_t buffer[256];
+	while (fat32_readLFN(dir, buffer, NULL))
 	{
-		for (int i = 0; i < 11; i++)
-			dbg_printf("%c", entry.name[i]);
-		dbg_printf("\n");
+		dbg_printf("%s\n", buffer);
 	}
+
+	fat32_close(dir);
+
+	// Read a file
+	fat32Handle* file = fat32_open("hahaverylongfile.txt");
+	fat32_read(file, 256, buffer);
+
+	dbg_printf("File content:\n%s\n", buffer);
 
 	fat32_close(file);
 

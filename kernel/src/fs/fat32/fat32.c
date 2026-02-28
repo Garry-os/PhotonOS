@@ -194,6 +194,8 @@ end:
 	return u8Buffer - (uint8_t*)buffer;
 }
 
+// Read a FAT32 entry
+// the LFN entry argument can be NULL
 bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry)
 {
 	bool success = fat32_read(handle, sizeof(fat32DirEntry), entry) == sizeof(fat32DirEntry);
@@ -202,7 +204,7 @@ bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry)
 		return false;
 	}
 
-	if (entry->name[0] == 0x00)
+	if (entry->name[0] == 0x00 || entry->name[0] == 0xE5)
 	{
 		// No more entries
 		return false;
@@ -210,4 +212,63 @@ bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry)
 
 	return true;
 }
+
+// Loops over the LFN entries until the last entry
+// And copy the names into a buffer
+// buffer must be >= 256
+// entry out is optional, it can be NULL
+bool fat32_readLFN(fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out)
+{
+	int lfnLast = -1;
+	fat32DirEntry entry;
+	while (fat32_readEntry(handle, &entry))
+	{
+		fat32LFNEntry* lfn = (fat32LFNEntry*)&entry;
+		if (entry.attributes == FAT_ATTRIBUTE_LFN && !lfn->type)
+		{
+			int index = (lfn->order & ~FAT32_ORDER_LAST) - 1;
+
+			// If LFN index is valid
+			if (index > FAT32_LFN_MAX_INDEX)
+			{
+				dbg_printf("[FAT32] Invalid LFN index: %d\n", index);
+				return false;
+			}
+
+			// Check if it's the last index
+			if ((lfn->order & FAT32_ORDER_LAST) > 0)
+			{
+				lfnLast = index;
+			}
+
+			// Copy over the LFN entry's name
+			fat32_copyLFN(buffer, lfn, index);
+
+			continue;
+		}
+
+		if (lfnLast >= 0)
+		{
+			// LFN entries reading is completed
+			// Calculate the LFN's length
+			int lfnLen = 0;
+			while (buffer[lfnLen++]);
+
+			lfnLen--; // NULL termination
+			if (lfnLen < 0)
+			{
+				dbg_printf("[FAT32] Invalid LFN length: %d\n", lfnLen);
+				return false;
+			}
+
+			if (out)
+				*out = entry;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 

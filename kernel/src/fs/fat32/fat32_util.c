@@ -57,3 +57,26 @@ void fat32_NameToShort(const char* name, char shortName[12])
 	}
 }
 
+// Copy the LFN's chars into a buffer
+void fat32_copyLFN(uint8_t* buffer, fat32LFNEntry* lfn, int index)
+{
+	uint8_t* target = &buffer[index * 13]; // 5 + 6 + 2 = 13 (total characters)
+	int current = 0;
+
+	// Copy the characters
+	for (int i = 0; i < 5; i++)
+	{
+		target[current++] = lfn->chars1[i];
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		target[current++] = lfn->chars2[i];
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		target[current++] = lfn->chars3[i];
+	}
+}
+
