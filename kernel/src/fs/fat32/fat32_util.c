@@ -4,19 +4,19 @@
 #include <utils/ctype.h>
 #include <utils/string.h>
 
-uint32_t fat32_clusterToLba(uint32_t cluster)
+uint32_t fat32_clusterToLba(fat32_data* data, uint32_t cluster)
 {
-	return g_data->clusterStartLba + (cluster - 2) * g_data->bootSector.data.sectorsPerCluster;
+	return data->clusterStartLba + (cluster - 2) * data->bootSector.data.sectorsPerCluster;
 }
 
-uint32_t fat32_nextCluster(uint32_t cluster)
+uint32_t fat32_nextCluster(fat32_data* data, uint32_t cluster)
 {
 	uint32_t fatIndex = cluster * 4;
 	uint8_t tmpBuffer[SECTOR_SIZE];
-	uint32_t lba = g_data->fatStartLba + (fatIndex / SECTOR_SIZE);
+	uint32_t lba = data->fatStartLba + (fatIndex / SECTOR_SIZE);
 
 	// Read in the FAT table
-	if (!g_data->dev->read(g_data->dev, lba, 1, tmpBuffer))
+	if (!data->dev->read(data->dev, lba, 1, tmpBuffer))
 	{
 		dbg_printf("Failed to read!\n");
 		return 0xFFFFFFFF;

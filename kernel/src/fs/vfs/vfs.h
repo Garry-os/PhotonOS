@@ -18,7 +18,7 @@ typedef struct fileHandle fileHandle;
 // FS driver should provide those functions.
 typedef struct
 {
-	fileHandle* (*open)(const char* path);
+	size_t (*open)(fileHandle* handle, const char* path);
 	void (*close)(fileHandle* handle);
 
 	size_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);

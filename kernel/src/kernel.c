@@ -71,8 +71,7 @@ void start(void)
 		current = current->next;
 	}
 
-	// Reading test
-	// Find first block device
+	// Enumerate over block devices
 	blockDevice* target = firstBlock;
 
 	while (target)
@@ -82,30 +81,22 @@ void start(void)
 		// Mount the partition
 		if (target->type == DEV_TYPE_PARTITION)
 		{
-			fat32_mount(target);
+			// Mount partition
+			fsMount("/", target);
+			break;
 		}
 		target = target->next;
 	}
 
-	// Read a directory
-	fat32Handle* dir = fat32_open("/");
-
-	uint8_t buffer[256];
-	while (fat32_readLFN(dir, buffer, NULL))
-	{
-		dbg_printf("%s\n", buffer);
-	}
-
-	fat32_close(dir);
-
 	// Read a file
-	fat32Handle* file = fat32_open("stuff/hello.txt");
-	memset(buffer, 0, 256);
-	fat32_read(file, 256, buffer);
+	fileHandle* handle = fsOpen("/hahaverylongfile.txt");
+	
+	uint8_t buffer[100];
+	fsRead(handle, 100, buffer);
 
-	dbg_printf("File content:\n%s\n", buffer);
+	dbg_printf("File content: %s\n", buffer);
 
-	fat32_close(file);
+	fsClose(handle);
 
 	while (1)
 	{

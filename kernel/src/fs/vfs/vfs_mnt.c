@@ -15,18 +15,18 @@ mountpoint_t* fsMount(char* prefix, blockDevice* dev)
 	
 	// Copy over the mount info
 	strcpy(newMnt->prefix, prefix); // Copy over the mount prefix
-	
+	newMnt->dev = dev;
+
 	// Determine file system
-	bool success = true;
+	bool success = false;
 	if (isFat(dev))
 	{
 		newMnt->fsType = FS_TYPE_FAT;
-		success = fat32_mount(dev);
+		success = fat32_mount(newMnt);
 	}
 	else
 	{
 		dbg_printf("[VFS] No filesystem found on %s\n", dev->name);
-		success = false;
 	}
 	
 	if (!success)
@@ -55,7 +55,7 @@ mountpoint_t* fsFindMnt(const char* prefix)
 	// Try to find the prefix with the most matchup
 	while (current)
 	{
-		unsigned len = strlen(current->prefix);
+		unsigned len = strlen(current->prefix) - 1; // Without the leading slash
 		if (len >= largestLen && memcmp(current->prefix, prefix, len) == 0 &&
 			(prefix[len] == '/' || prefix[len] == '\0'))
 		{

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <storage/block.h>
 #include <stdint.h>
+#include <vfs/vfs.h>
 
 #define SECTOR_SIZE 512
 
@@ -132,26 +133,27 @@ typedef enum
 #define FAT_HANDLE_DIR (1 << 0)
 #define FAT_HANDLE_ROOT (1 << 1)
 
-extern fat32_data* g_data;
+bool fat32_mount(mountpoint_t* mnt);
 
-bool fat32_mount(blockDevice* dev);
+fat32Handle* fat32_open(fat32_data* data, const char* path);
+fat32Handle* fat32_openEntry(fat32_data* data, fat32DirEntry entry);
+void fat32_close(fat32_data* data, fat32Handle* handle);
 
-fat32Handle* fat32_open(const char* path);
-fat32Handle* fat32_openEntry(fat32DirEntry entry);
-void fat32_close(fat32Handle* handle);
-
-uint32_t fat32_read(fat32Handle* handle, uint32_t limit, void* buffer);
-bool fat32_readEntry(fat32Handle* handle, fat32DirEntry* entry);
-bool fat32_readLFN(fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out);
+uint32_t fat32_read(fat32_data* data, fat32Handle* handle, uint32_t limit, void* buffer);
+bool fat32_readEntry(fat32_data* data, fat32Handle* handle, fat32DirEntry* entry);
+bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out);
 
 // fat32_path.c
-bool fat32_traverse(const char* path, fat32DirEntry* out);
+bool fat32_traverse(fat32_data* data, const char* path, fat32DirEntry* out);
 
 // fat32_util.c
-uint32_t fat32_clusterToLba(uint32_t cluster);
-uint32_t fat32_nextCluster(uint32_t cluster);
+uint32_t fat32_clusterToLba(fat32_data* data, uint32_t cluster);
+uint32_t fat32_nextCluster(fat32_data* data, uint32_t cluster);
 
 void fat32_NameToShort(const char* name, char shortName[12]);
 
 void fat32_copyLFN(uint8_t* buffer, fat32LFNEntry* lfn, int index);
+
+// fat32_interface.c
+void fat32_registerVFS(mountpoint_t* mnt);
 

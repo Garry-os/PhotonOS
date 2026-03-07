@@ -6,12 +6,12 @@
 #include <utils/memory.h>
 #include <utils/string.h>
 
-bool fat32_findEntry(fat32Handle* handle, const char* name, fat32DirEntry* out)
+bool fat32_findEntry(fat32_data* data, fat32Handle* handle, const char* name, fat32DirEntry* out)
 {
 	uint8_t nameBuffer[256];
 
 	fat32DirEntry entry;
-	while (fat32_readLFN(handle, nameBuffer, &entry))
+	while (fat32_readLFN(data, handle, nameBuffer, &entry))
 	{
 		if (strcmp((char*)nameBuffer, name) == 0)
 		{
@@ -24,7 +24,7 @@ bool fat32_findEntry(fat32Handle* handle, const char* name, fat32DirEntry* out)
 }
 
 
-bool fat32_traverse(const char* path, fat32DirEntry* out)
+bool fat32_traverse(fat32_data* data, const char* path, fat32DirEntry* out)
 {
 	fat32DirEntry entry;
 
@@ -40,7 +40,7 @@ bool fat32_traverse(const char* path, fat32DirEntry* out)
 		path++;
 	}
 
-	fat32Handle* current = g_data->root; // Current directory
+	fat32Handle* current = data->root; // Current directory
 	bool isLast = false;
 
 	char name[256];
@@ -65,25 +65,25 @@ bool fat32_traverse(const char* path, fat32DirEntry* out)
 			isLast = true;
 		}
 
-		if (!fat32_findEntry(current, name, &entry))
+		if (!fat32_findEntry(data, current, name, &entry))
 		{
 			dbg_printf("[FAT32] Directory entry not found: %s\n", name);
-			fat32_close(current);
+			fat32_close(data, current);
 			return false;
 		}
 
-		fat32_close(current);
+		fat32_close(data, current);
 
 		// Check if it's a directory
 		if (!isLast && !(current->attributes & FAT_HANDLE_DIR))
 		{
-			fat32_close(current);
+			fat32_close(data, current);
 			dbg_printf("[FAT32] %s isn't a directory\n", name);
 			return false;
 		}
 
 		// Open a new directory
-		current = fat32_openEntry(entry);
+		current = fat32_openEntry(data, entry);
 	}
 
 	*out = entry;

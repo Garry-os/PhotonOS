@@ -2,27 +2,39 @@
 // VFS main implementation file
 //
 #include "vfs.h"
+#include <malloc.h>
+#include <utils/string.h>
+#include <qemu/print.h>
 
 mountpoint_t* firstMount = NULL;
 
 fileHandle* fsOpen(const char* path)
 {
 	mountpoint_t* mnt = fsFindMnt(path);
-	fileHandle* handle = NULL;
+	fileHandle* handle = (fileHandle*)malloc(sizeof(handle));
+
+	handle->path = (char*)malloc((size_t)strlen(path));
 
 	if (mnt != NULL)
 	{
-		char* relPath = fsGetRelativePath(mnt, path);
-		handle = mnt->ops->open(relPath);
-		if (!handle)
-		{
-			return NULL;
-		}
-
 		// Setup file handle
 		handle->ops = mnt->ops;
-		handle->path = path;
+		strcpy(handle->path, path);
 		handle->mnt = mnt;
+
+		char* relPath = fsGetRelativePath(mnt, path);
+		size_t result = mnt->ops->open(handle, relPath);
+		if (result != 0)
+		{
+			dbg_printf("[VFS] Failed to open file: %s\n", path);
+			free(handle->path);
+			free(handle);
+			return NULL;
+		}
+	}
+	else
+	{
+		return NULL;
 	}
 
 	return handle;
@@ -37,5 +49,7 @@ size_t fsRead(fileHandle* handle, size_t limit, void* buffer)
 void fsClose(fileHandle* handle)
 {
 	handle->ops->close(handle);
+	free(handle->path);
+	free(handle);
 }
 
