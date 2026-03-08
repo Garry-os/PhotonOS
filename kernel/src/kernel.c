@@ -88,15 +88,13 @@ void start(void)
 		target = target->next;
 	}
 
-	// Read a file
-	fileHandle* handle = fsOpen("/hahaverylongfile.txt");
-	fsSeek(handle, 5, SEEK_SET);
-
-	uint8_t buffer[100];
-	fsRead(handle, 100, buffer);
-
-	dbg_printf("File content: %s\n", buffer);
-	dbg_printf("File size: %lld\n", fsGetFileSize(handle));
+	// Read directory
+	fileHandle* handle = fsOpen("/");
+	dirent64 dir;
+	while (fsReaddir(handle, &dir))
+	{
+		dbg_printf("%s\n", dir.name);
+	}
 
 	fsClose(handle);
 

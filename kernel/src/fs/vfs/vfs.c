@@ -55,21 +55,32 @@ size_t fsGetFileSize(fileHandle* handle)
 size_t fsSeek(fileHandle* handle, int offset, int whence)
 {
 	int target = offset;
-	if (target == SEEK_SET)
+	if (whence == SEEK_SET)
 	{
 		target += 0; // Current
 	}
-	else if (target == SEEK_CUR)
+	else if (whence == SEEK_CUR)
 	{
 		target += handle->current; // Current + offset
 	}
-	else if (target == SEEK_END)
+	else if (whence == SEEK_END)
 	{
 		target += fsGetFileSize(handle);
 	}
 
 	size_t result = handle->ops->seek(handle, target);
 	return result;
+}
+
+dirent64* fsReaddir(fileHandle* handle, dirent64* dir)
+{
+	bool success = handle->ops->readdir(handle, (uint8_t*)dir->name);
+	if (!success)
+	{
+		return NULL;
+	}
+
+	return dir;
 }
 
 void fsClose(fileHandle* handle)

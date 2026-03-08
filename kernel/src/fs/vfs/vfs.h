@@ -25,6 +25,7 @@ typedef struct
 	size_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
 	size_t (*getFileSize)(fileHandle* handle);
 	size_t (*seek)(fileHandle* handle, int offset);
+	bool   (*readdir)(fileHandle* handle, uint8_t* buffer);
 } fs_ops_t;
 
 typedef struct mountpoint
@@ -53,9 +54,12 @@ struct fileHandle
 };
 
 fileHandle* fsOpen(const char* path);
+
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer);
 size_t fsGetFileSize(fileHandle* handle);
 size_t fsSeek(fileHandle* handle, int offset, int whence);
+dirent64* fsReaddir(fileHandle* handle, dirent64* dir);
+
 void fsClose(fileHandle* handle);
 
 // vfs_mnt.c

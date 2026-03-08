@@ -11,6 +11,7 @@ void fat32_vfs_close(fileHandle* handle);
 size_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer);
 size_t fat32_vfs_getFileSize(fileHandle* handle);
 size_t fat32_vfs_seek(fileHandle* handle, int offset);
+bool fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer);
 
 fs_ops_t fat32_ops = {
 	.open = fat32_vfs_open,
@@ -18,7 +19,8 @@ fs_ops_t fat32_ops = {
 
 	.read = fat32_vfs_read,
 	.getFileSize = fat32_vfs_getFileSize,
-	.seek = fat32_vfs_seek
+	.seek = fat32_vfs_seek,
+	.readdir = fat32_vfs_readdir
 };
 
 void fat32_registerVFS(mountpoint_t* mnt)
@@ -74,5 +76,15 @@ size_t fat32_vfs_seek(fileHandle* handle, int offset)
 
 	size_t bytes = fat32_seek(data, fatHandle, (uint32_t)offset);
 	return bytes;
+}
+
+bool fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer)
+{
+	fat32Handle* fatHandle = (fat32Handle*)handle->fileInfo;
+	fat32_data* data = (fat32_data*)handle->mnt->fsData;
+
+	bool success = fat32_readLFN(data, fatHandle, buffer, NULL);
+
+	return success;
 }
 
