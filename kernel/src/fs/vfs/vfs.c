@@ -51,6 +51,27 @@ size_t fsGetFileSize(fileHandle* handle)
 	return handle->ops->getFileSize(handle);
 }
 
+// Return bytes sought
+size_t fsSeek(fileHandle* handle, int offset, int whence)
+{
+	int target = offset;
+	if (target == SEEK_SET)
+	{
+		target += 0; // Current
+	}
+	else if (target == SEEK_CUR)
+	{
+		target += handle->current; // Current + offset
+	}
+	else if (target == SEEK_END)
+	{
+		target += fsGetFileSize(handle);
+	}
+
+	size_t result = handle->ops->seek(handle, target);
+	return result;
+}
+
 void fsClose(fileHandle* handle)
 {
 	handle->ops->close(handle);

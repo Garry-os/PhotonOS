@@ -142,6 +142,7 @@ void fat32_close(fat32_data* data, fat32Handle* handle);
 uint32_t fat32_read(fat32_data* data, fat32Handle* handle, uint32_t limit, void* buffer);
 bool fat32_readEntry(fat32_data* data, fat32Handle* handle, fat32DirEntry* entry);
 bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out);
+size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset);
 
 // fat32_path.c
 bool fat32_traverse(fat32_data* data, const char* path, fat32DirEntry* out);

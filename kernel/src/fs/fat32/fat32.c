@@ -280,4 +280,35 @@ bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32
 	return false;
 }
 
+size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
+{
+	if (offset > handle->size)
+	{
+		return 0;
+	}
+
+	if (offset == handle->currentOffset)
+	{
+		return offset;
+	}
+
+	uint32_t clusterIndex = offset / (data->bootSector.data.sectorsPerCluster * SECTOR_SIZE);
+	uint32_t currentCluster = handle->firstCluster;
+
+	// Calculate the cluster using the cluster index
+	for (uint32_t i = 0; i < clusterIndex; i++)
+	{
+		currentCluster = fat32_nextCluster(data, currentCluster);
+		if (currentCluster >= FAT32_EOC || currentCluster == FAT32_BAD_CLUSTER)
+		{
+			return 0;
+		}
+	}
+
+	handle->currentCluster = currentCluster;
+	handle->currentOffset = offset;
+
+	return offset;
+}
+
 

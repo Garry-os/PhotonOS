@@ -90,7 +90,8 @@ void start(void)
 
 	// Read a file
 	fileHandle* handle = fsOpen("/hahaverylongfile.txt");
-	
+	fsSeek(handle, 5, SEEK_SET);
+
 	uint8_t buffer[100];
 	fsRead(handle, 100, buffer);
 

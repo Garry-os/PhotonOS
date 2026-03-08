@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <storage/block.h>
 #include <stdbool.h>
+#include <uapi.h>
 
 #define VFS_MAX_PATH_LEN 128
 
@@ -23,6 +24,7 @@ typedef struct
 
 	size_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
 	size_t (*getFileSize)(fileHandle* handle);
+	size_t (*seek)(fileHandle* handle, int offset);
 } fs_ops_t;
 
 typedef struct mountpoint
@@ -46,12 +48,14 @@ struct fileHandle
 	fs_ops_t* ops;
 
 	mountpoint_t* mnt;
+	size_t current; // Current reading offset
 	void* fileInfo;
 };
 
 fileHandle* fsOpen(const char* path);
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer);
 size_t fsGetFileSize(fileHandle* handle);
+size_t fsSeek(fileHandle* handle, int offset, int whence);
 void fsClose(fileHandle* handle);
 
 // vfs_mnt.c
