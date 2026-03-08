@@ -95,6 +95,7 @@ void start(void)
 	fsRead(handle, 100, buffer);
 
 	dbg_printf("File content: %s\n", buffer);
+	dbg_printf("File size: %lld\n", fsGetFileSize(handle));
 
 	fsClose(handle);
 

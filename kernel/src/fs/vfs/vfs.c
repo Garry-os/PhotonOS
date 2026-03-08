@@ -46,6 +46,11 @@ size_t fsRead(fileHandle* handle, size_t limit, void* buffer)
 	return bytesCount;
 }
 
+size_t fsGetFileSize(fileHandle* handle)
+{
+	return handle->ops->getFileSize(handle);
+}
+
 void fsClose(fileHandle* handle)
 {
 	handle->ops->close(handle);
