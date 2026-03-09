@@ -5,6 +5,7 @@
 #include <x86_64/cpu.h>
 #include <utils/memory.h>
 #include <boot.h>
+#include <lock.h>
 
 bitmap_t g_Bitmap;
 
@@ -96,7 +97,9 @@ void* pmm_Allocate(size_t pages)
 		panic();
 	}
 
+	lockAcquire();
 	LockPages((void*)(region * PAGE_SIZE), pages);
+	lockRelease();
 
 	return (void*)(region * PAGE_SIZE);
 }
@@ -123,9 +126,11 @@ void FreePage(void* address)
 
 void pmm_Free(void* address, size_t pages)
 {
+	lockAcquire();
 	for (size_t i = 0; i < pages; i++)
 	{
 		FreePage((void*)((uint64_t)address + (i * PAGE_SIZE)));
 	}
+	lockRelease();
 }
 

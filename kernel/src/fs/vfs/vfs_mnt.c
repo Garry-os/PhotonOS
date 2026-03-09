@@ -11,8 +11,10 @@
 
 mountpoint_t* fsMount(char* prefix, blockDevice* dev)
 {
+	lockAcquire();
 	mountpoint_t* newMnt = LL_Allocate((void**)&firstMount, sizeof(mountpoint_t));
-	
+	lockRelease();
+
 	// Copy over the mount info
 	strcpy(newMnt->prefix, prefix); // Copy over the mount prefix
 	newMnt->dev = dev;

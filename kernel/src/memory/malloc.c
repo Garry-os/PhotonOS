@@ -6,6 +6,7 @@
 #include <vmm.h>
 #include <pmm.h>
 #include <qemu/print.h>
+#include <lock.h>
 
 // Heap initial size
 // 16 pages
@@ -61,6 +62,8 @@ mNode_t* splitNode(mNode_t* node, size_t size)
 		return NULL;
 	}
 
+	lockAcquire();
+
 	// Setup the new node
 	mNode_t* newNode = (mNode_t*)((void*)node + size + sizeof(mNode_t));
 	newNode->size = node->size - size - sizeof(mNode_t);
@@ -77,6 +80,8 @@ mNode_t* splitNode(mNode_t* node, size_t size)
 		// Update the last node
 		lastNode = newNode;
 	}
+	
+	lockRelease();
 
 	return newNode;
 }
@@ -87,6 +92,8 @@ void combineBackward(mNode_t* node);
 void expandHeap(size_t size)
 {
 	dbg_printf("[Heap] Expanding heap!\n");
+
+	lockAcquire();
 	size = align(size);
 
 	size_t pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
@@ -100,6 +107,7 @@ void expandHeap(size_t size)
 	// Update last node
 	lastNode->next = newNode;
 	lastNode = newNode;
+	lockRelease();
 
 	// Combine two nodes if can
 	// TODO
@@ -123,6 +131,8 @@ void combineForward(mNode_t* node)
 		return;
 	}
 
+	lockAcquire();
+
 	if (node->next == lastNode)
 	{
 		lastNode = node;
@@ -135,6 +145,8 @@ void combineForward(mNode_t* node)
 
 	node->size = node->size + node->next->size + sizeof(mNode_t);
 	node->next = node->next->next;
+
+	lockRelease();
 }
 
 // Combine two nodes backward
@@ -201,9 +213,13 @@ void free(void* address)
 		return;
 	}
 
+	lockAcquire();
+
 	mNode_t* node = (mNode_t*)address - 1;
 	node->free = true;
 	combineForward(node);
 	combineBackward(node);
+	
+	lockRelease();
 }
 

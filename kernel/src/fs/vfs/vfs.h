@@ -3,6 +3,7 @@
 #include <storage/block.h>
 #include <stdbool.h>
 #include <uapi.h>
+#include <lock.h>
 
 #define VFS_MAX_PATH_LEN 128
 
