@@ -2,7 +2,9 @@
 #include <stdint.h>
 
 #define IDT_INTERRUPT_GATE 0x8E
+#define IDT_USER_INTERRUPT_GATE 0xEE // (DPL = 3)
 #define IDT_TRAP_GATE 0x8F
+#define IDT_USER_TRAP_GATE 0xEF // (DPL = 3)
 
 typedef struct
 {

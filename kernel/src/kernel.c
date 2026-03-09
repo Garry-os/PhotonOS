@@ -22,6 +22,7 @@
 #include <storage/block.h>
 #include <fat32/fat32.h>
 #include <utils/memory.h>
+#include <syscalls.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
@@ -97,6 +98,11 @@ void start(void)
 	}
 
 	fsClose(handle);
+
+	InitSyscall();
+
+	// Try firing a syscall
+	asm volatile ("int $0x80");
 
 	while (1)
 	{
