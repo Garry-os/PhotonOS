@@ -4,9 +4,13 @@
 #include <x86_64/pic.h>
 #include <qemu/print.h>
 #include <vmm.h>
+#include <x86_64/gdt.h>
 
 // In isr.asm
 extern void asm_switchTask(uint64_t iretRsp, uint64_t pd);
+
+// gdt.c
+extern TSS* tssPtr;
 
 void schedule(cpu_registers_t* context)
 {
@@ -41,11 +45,14 @@ void schedule(cpu_registers_t* context)
 	next->status = TASK_STATE_RUNNING;
 	currentTask = next;
 
+	// Switch TSS rsp0
+	tssPtr->rsp0 = next->rsp0;
+
 	// Save CPU registers
 	memcpy(&old->context, context, sizeof(cpu_registers_t));
 
 	// Setup the new CPU context in the task's stack
-	cpu_registers_t* iretqRsp = (cpu_registers_t*)(next->iretqRsp - sizeof(cpu_registers_t));
+	cpu_registers_t* iretqRsp = (cpu_registers_t*)(next->rsp0 - sizeof(cpu_registers_t));
 	memcpy(iretqRsp, &next->context, sizeof(cpu_registers_t));
 
 	// Only switch to global pd variable

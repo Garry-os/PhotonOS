@@ -52,7 +52,7 @@ task_t* TaskCreate(void (*entry)(void), uint64_t* pd)
 	task->context.rip = (uint64_t)entry;
 	task->context.rbp = 0;
 	task->status = TASK_STATE_READY;
-	task->iretqRsp = (uint64_t)AllocateStack();
+	task->rsp0 = (uint64_t)AllocateStack();
 
 	lockRelease();
 
@@ -88,7 +88,7 @@ void SetupKernelTask()
 	currentTask->id = KERNEL_TASK_ID;
 	currentTask->status = TASK_STATE_RUNNING;
 	currentTask->pd = vmm_GetCurrentPd();
-	currentTask->iretqRsp = (uint64_t)AllocateStack();
+	currentTask->rsp0 = (uint64_t)AllocateStack();
 }
 
 void dummyTaskEntry()

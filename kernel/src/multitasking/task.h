@@ -24,8 +24,7 @@ typedef struct task
 	struct task* next;
 	uint8_t status;
 	uint64_t* pd;
-
-	uint64_t iretqRsp; // TODO: Implement TSS instead of this
+	uint64_t rsp0;
 } task_t;
 
 extern task_t* firstTask;
