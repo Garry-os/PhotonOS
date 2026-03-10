@@ -33,7 +33,7 @@ void pt_MapPage(uint64_t* pml4, uint64_t virtAddr, uint64_t physAddr, uint64_t f
 	if (!(pml4[pml4_i] & PF_PRESENT))
 	{
 		uint64_t target = pt_Allocate();
-		pml4[pml4_i] = target | PF_PRESENT | PF_RW;
+		pml4[pml4_i] = target | PF_PRESENT | PF_RW | PF_USER;
 	}
 
 	// PDP entry
@@ -42,7 +42,7 @@ void pt_MapPage(uint64_t* pml4, uint64_t virtAddr, uint64_t physAddr, uint64_t f
 	if (!(pdp[pdp_i] & PF_PRESENT))
 	{
 		uint64_t target = pt_Allocate();
-		pdp[pdp_i] = target | PF_PRESENT | PF_RW;
+		pdp[pdp_i] = target | PF_PRESENT | PF_RW | PF_USER;
 	}
 
 	// PD entry
@@ -51,7 +51,7 @@ void pt_MapPage(uint64_t* pml4, uint64_t virtAddr, uint64_t physAddr, uint64_t f
 	if (!(pd[pd_i] & PF_PRESENT))
 	{
 		uint64_t target = pt_Allocate();
-		pd[pd_i] = target | PF_PRESENT | PF_RW;
+		pd[pd_i] = target | PF_PRESENT | PF_RW | PF_USER;
 	}
 
 	// PT entry
