@@ -11,7 +11,7 @@ mountpoint_t* firstMount = NULL;
 fileHandle* fsOpen(const char* path)
 {
 	mountpoint_t* mnt = fsFindMnt(path);
-	fileHandle* handle = (fileHandle*)malloc(sizeof(handle));
+	fileHandle* handle = (fileHandle*)malloc(sizeof(fileHandle));
 
 	handle->path = (char*)malloc((size_t)strlen(path));
 

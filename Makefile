@@ -19,4 +19,6 @@ clean:
 
 run:
 	qemu-system-x86_64 -hda build/disk.img -debugcon stdio -machine q35
+qemu-dbg:
+	qemu-system-x86_64 -hda build/disk.img -debugcon stdio -machine q35 -d int
 

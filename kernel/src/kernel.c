@@ -28,6 +28,11 @@
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
 
+void taskEntry()
+{
+	while (1);
+}
+
 void start(void)
 {
 	// Check if revision is supported
@@ -89,6 +94,7 @@ void start(void)
 		target = target->next;
 	}
 
+
 	// Read directory
 	fileHandle* handle = fsOpen("/");
 	dirent64 dir;
@@ -100,9 +106,7 @@ void start(void)
 	fsClose(handle);
 
 	InitSyscall();
-
-	// Try firing a syscall
-	asm volatile ("int $0x80");
+	TaskCreate(taskEntry, vmm_CopyKernelPd());
 
 	while (1)
 	{
