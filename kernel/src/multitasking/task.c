@@ -51,7 +51,7 @@ task_t* TaskCreate(void (*entry)(void), uint64_t* pd)
 	task->context.rflags = 0x200; // Interrupt enabled (bit 9)
 	task->context.rip = (uint64_t)entry;
 	task->context.rbp = 0;
-	task->status = TASK_STATE_READY;
+	task->status = TASK_STATE_CREATED;
 	task->rsp0 = (uint64_t)AllocateStack();
 
 	lockRelease();

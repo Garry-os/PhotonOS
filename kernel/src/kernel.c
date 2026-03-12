@@ -106,7 +106,9 @@ void start(void)
 	fsClose(handle);
 
 	InitSyscall();
-	TaskCreate(taskEntry, vmm_CopyKernelPd());
+
+	task_t* task = TaskCreate(taskEntry, vmm_CopyKernelPd());
+	task->status = TASK_STATE_READY;
 
 	while (1)
 	{

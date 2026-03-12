@@ -19,7 +19,8 @@ void schedule(cpu_registers_t* context)
 		return;
 	}
 
-	currentTask->status = TASK_STATE_READY;
+	if (currentTask->status == TASK_STATE_RUNNING)
+		currentTask->status = TASK_STATE_READY;
 
 	task_t* next = currentTask->next;
 	if (!next)
@@ -28,6 +29,8 @@ void schedule(cpu_registers_t* context)
 		next = firstTask;
 	}
 
+	// Loop 1 whole run around the task linked list
+	bool fullRun = false;
 	while (next->status != TASK_STATE_READY)
 	{
 		next = next->next;
@@ -35,6 +38,13 @@ void schedule(cpu_registers_t* context)
 		if (!next)
 		{
 			// Switch to dummy task
+			if (!fullRun)
+			{
+				fullRun = true;
+				next = firstTask;
+				continue;
+			}
+
 			next = dummyTask;
 			break;
 		}
