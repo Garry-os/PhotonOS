@@ -28,9 +28,28 @@
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
 
-void taskEntry()
+uint8_t userCode[] = {
+	0xcd, 0x80, // int 0x80
+	0xeb, 0xfe // jmp $
+};
+
+#define USER_BINARY 0x8000000
+
+void testUser()
 {
-	while (1);
+	task_t* task = TaskCreate((uint64_t)USER_BINARY, vmm_CopyKernelPd(), false);
+	
+	uint64_t* oldPd = vmm_GetCurrentPd();
+	vmm_SwitchPd(task->pd);
+
+	vmm_MapPage((void*)USER_BINARY, pmm_Allocate(1), PF_USER);
+	memset((void*)USER_BINARY, 0, PAGE_SIZE);
+
+	memcpy((void*)USER_BINARY, userCode, sizeof(userCode));
+
+	vmm_SwitchPd(oldPd);
+
+	task->status = TASK_STATE_READY;
 }
 
 void start(void)
@@ -107,8 +126,7 @@ void start(void)
 
 	InitSyscall();
 
-	task_t* task = TaskCreate(taskEntry, vmm_CopyKernelPd());
-	task->status = TASK_STATE_READY;
+	testUser();
 
 	while (1)
 	{

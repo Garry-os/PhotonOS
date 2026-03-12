@@ -20,19 +20,24 @@ typedef enum
 // Linked list
 typedef struct task
 {
-	size_t id; // Task ID
-	cpu_registers_t context;
 	struct task* next;
+
+	// General task's informations
+	size_t id; // Task ID
 	uint8_t status;
+
+	// CPU-specific task's informations
+	cpu_registers_t context;
 	uint64_t* pd;
 	uint64_t rsp0;
+	bool isKernelTask;
 } task_t;
 
 extern task_t* firstTask;
 extern task_t* currentTask;
 extern task_t* dummyTask;
 
-task_t* TaskCreate(void (*entry)(void), uint64_t* pd);
+task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask);
 
 task_t* TaskGet(size_t id);
 

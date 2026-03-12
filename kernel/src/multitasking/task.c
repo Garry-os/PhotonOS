@@ -18,7 +18,7 @@ bool schedulerReady = false;
 // Avoid kernel task id
 size_t freeId = 1;
 
-task_t* TaskCreate(void (*entry)(void), uint64_t* pd)
+task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 {
 	task_t* task = (task_t*)malloc(sizeof(task_t));
 	memset(task, 0, sizeof(task_t));
@@ -38,23 +38,33 @@ task_t* TaskCreate(void (*entry)(void), uint64_t* pd)
 	}
 
 	index->next = task;
+	lockRelease();
 
 	task->id = freeId++;
+	task->status = TASK_STATE_CREATED;
 	task->pd = pd;
 
 	// IMPORTANT: Make sure to set the task's pd first before mapping the stack
 	MapStack(task);
 	
-	task->context.ss = 0x10; // Kernel DS
-	task->context.cs = 0x08; // Kernel CS
+	if (isKernelTask)
+	{
+		task->context.ss = 0x10; // Kernel DS
+		task->context.cs = 0x08; // Kernel CS
+	}
+	else
+	{
+		task->context.ss = 0x20 | 0x03; // User DS
+		task->context.cs = 0x18 | 0x03; // User CS
+	}
+
 	task->context.rsp = (uint64_t)STACK_TOP_ADDRESS;
 	task->context.rflags = 0x200; // Interrupt enabled (bit 9)
-	task->context.rip = (uint64_t)entry;
+	task->context.rip = entry;
 	task->context.rbp = 0;
-	task->status = TASK_STATE_CREATED;
 	task->rsp0 = (uint64_t)AllocateStack();
+	task->isKernelTask = isKernelTask;
 
-	lockRelease();
 
 	return task;
 }
@@ -89,6 +99,7 @@ void SetupKernelTask()
 	currentTask->status = TASK_STATE_RUNNING;
 	currentTask->pd = vmm_GetCurrentPd();
 	currentTask->rsp0 = (uint64_t)AllocateStack();
+	currentTask->isKernelTask = true;
 }
 
 void dummyTaskEntry()
@@ -117,7 +128,7 @@ void InitTasks()
 	taskInitialized = true;
 
 	// Setup a dummy task
-	dummyTask = TaskCreate(dummyTaskEntry, vmm_CopyKernelPd());
+	dummyTask = TaskCreate((uint64_t)dummyTaskEntry, vmm_CopyKernelPd(), true);
 	dummyTask->status = TASK_STATE_DUMMY;
 
 	schedulerReady = true;
