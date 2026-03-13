@@ -1,4 +1,7 @@
 build/
 limine/limine
 
+target/test
+programs/**.o
+programs/test/test
 

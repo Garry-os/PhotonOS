@@ -136,12 +136,16 @@ uint32_t fat32_read(fat32_data* data, fat32Handle* handle, uint32_t limit, void*
 	uint8_t* u8Buffer = (uint8_t*)buffer;
 
 	uint32_t remaining = limit;
+	uint32_t clusterOffset = handle->clusterOffset;
 
 	// Directory size is 0 (in some cases)
 	if (!(handle->attributes & FAT_HANDLE_DIR) || ((handle->attributes & FAT_HANDLE_DIR) > 0 && handle->size != 0))
 	{
 		remaining = min(remaining, handle->size - handle->currentOffset);
 	}
+
+	uint32_t sectorOffset = handle->clusterOffset / SECTOR_SIZE;
+	handle->currentSector = sectorOffset;
 	
 	while (remaining > 0)
 	{
@@ -292,8 +296,12 @@ size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
 		return offset;
 	}
 
-	uint32_t clusterIndex = offset / (data->bootSector.data.sectorsPerCluster * SECTOR_SIZE);
+	uint32_t clusterSize = data->bootSector.data.sectorsPerCluster * SECTOR_SIZE;
+	uint32_t clusterIndex = offset / clusterSize;
+	uint32_t clusterOffset = offset % clusterSize;
 	uint32_t currentCluster = handle->firstCluster;
+
+	uint32_t sectorOffset = clusterOffset / SECTOR_SIZE;
 
 	// Calculate the cluster using the cluster index
 	for (uint32_t i = 0; i < clusterIndex; i++)
@@ -305,8 +313,19 @@ size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
 		}
 	}
 
+	// Update values
 	handle->currentCluster = currentCluster;
 	handle->currentOffset = offset;
+	handle->currentSector = sectorOffset;
+	handle->clusterOffset = clusterOffset;
+
+	// Update the sector buffer
+	uint32_t lba = handle->currentSector + fat32_clusterToLba(data, handle->currentCluster);
+	if (!data->dev->read(data->dev, lba, 1, handle->buffer))
+	{
+		dbg_printf("[FAT32] Failed to read LBA %d\n", lba);
+		return 0;
+	}
 
 	return offset;
 }

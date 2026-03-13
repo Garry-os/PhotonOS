@@ -20,37 +20,14 @@
 #include <task.h>
 #include <pci/pci.h>
 #include <storage/block.h>
-#include <fat32/fat32.h>
 #include <utils/memory.h>
 #include <syscalls.h>
+#include <vfs/vfs.h>
+#include <loader/elf.h>
 
 // Set limine base revision to 4
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
-
-uint8_t userCode[] = {
-	0xcd, 0x80, // int 0x80
-	0xeb, 0xfe // jmp $
-};
-
-#define USER_BINARY 0x8000000
-
-void testUser()
-{
-	task_t* task = TaskCreate((uint64_t)USER_BINARY, vmm_CopyKernelPd(), false);
-	
-	uint64_t* oldPd = vmm_GetCurrentPd();
-	vmm_SwitchPd(task->pd);
-
-	vmm_MapPage((void*)USER_BINARY, pmm_Allocate(1), PF_USER);
-	memset((void*)USER_BINARY, 0, PAGE_SIZE);
-
-	memcpy((void*)USER_BINARY, userCode, sizeof(userCode));
-
-	vmm_SwitchPd(oldPd);
-
-	task->status = TASK_STATE_READY;
-}
 
 void start(void)
 {
@@ -113,20 +90,12 @@ void start(void)
 		target = target->next;
 	}
 
-
-	// Read directory
-	fileHandle* handle = fsOpen("/");
-	dirent64 dir;
-	while (fsReaddir(handle, &dir))
-	{
-		dbg_printf("%s\n", dir.name);
-	}
-
-	fsClose(handle);
-
 	InitSyscall();
 
-	testUser();
+	// Load in an ELF file
+	task_t* task = elfLoad("/test");
+	
+	task->status = TASK_STATE_READY;
 
 	while (1)
 	{

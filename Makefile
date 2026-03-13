@@ -1,8 +1,8 @@
-.PHONY: all disk kernel bootloader clean run
+.PHONY: all disk kernel bootloader programs clean run
 
 all: disk
 
-disk: kernel bootloader
+disk: kernel bootloader programs
 	@ chmod +x ./scripts/make_disk.sh
 	@ ./scripts/make_disk.sh
 
@@ -12,6 +12,10 @@ kernel:
 bootloader:
 	@ chmod +x limine/get.sh
 	@ ./limine/get.sh
+programs:
+	@ chmod +x programs/test/compile.sh
+	@ ./programs/test/compile.sh
+	@ cp ./programs/test/test target/
 
 clean:
 	rm -rf build

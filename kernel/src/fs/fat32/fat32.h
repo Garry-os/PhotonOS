@@ -93,6 +93,7 @@ typedef struct
 	uint32_t currentCluster;
 	uint32_t currentOffset;
 	uint32_t currentSector; // Current sector in a cluster
+	uint32_t clusterOffset; // Offset inside cluster
 	uint32_t size;
 
 	uint8_t attributes;
