@@ -9,7 +9,8 @@
 #include <fat32/fat32.h>
 #include <qemu/print.h>
 
-mountpoint_t* fsMount(char* prefix, blockDevice* dev)
+// Src can be NULL if mounting a virtual FS (e.g /dev)
+mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix)
 {
 	lockAcquire();
 	mountpoint_t* newMnt = LL_Allocate((void**)&firstMount, sizeof(mountpoint_t));
@@ -17,18 +18,18 @@ mountpoint_t* fsMount(char* prefix, blockDevice* dev)
 
 	// Copy over the mount info
 	strcpy(newMnt->prefix, prefix); // Copy over the mount prefix
-	newMnt->dev = dev;
+	newMnt->dev = src;
 
 	// Determine file system
 	bool success = false;
-	if (isFat(dev))
+	if (fsType == FS_TYPE_FAT && isFat(src))
 	{
 		newMnt->fsType = FS_TYPE_FAT;
 		success = fat32_mount(newMnt);
 	}
 	else
 	{
-		dbg_printf("[VFS] No filesystem found on %s\n", dev->name);
+		dbg_printf("[VFS] No or invalid filesystem on device: %s\n", src->name);
 	}
 	
 	if (!success)

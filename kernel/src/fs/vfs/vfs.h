@@ -64,7 +64,7 @@ dirent64* fsReaddir(fileHandle* handle, dirent64* dir);
 void fsClose(fileHandle* handle);
 
 // vfs_mnt.c
-mountpoint_t* fsMount(char* prefix, blockDevice* dev);
+mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix);
 void fsUnmount(mountpoint_t* mnt);
 
 mountpoint_t* fsFindMnt(const char* prefix);

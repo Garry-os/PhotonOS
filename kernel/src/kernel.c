@@ -84,7 +84,7 @@ void start(void)
 		if (target->type == DEV_TYPE_PARTITION)
 		{
 			// Mount partition
-			fsMount("/", target);
+			fsMount(target, FS_TYPE_FAT, "/");
 			break;
 		}
 		target = target->next;
