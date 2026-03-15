@@ -27,6 +27,11 @@ mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix)
 		newMnt->fsType = FS_TYPE_FAT;
 		success = fat32_mount(newMnt);
 	}
+	else if (fsType == FS_TYPE_DEV)
+	{
+		newMnt->fsType = FS_TYPE_DEV;
+
+	}
 	else
 	{
 		dbg_printf("[VFS] No or invalid filesystem on device: %s\n", src->name);

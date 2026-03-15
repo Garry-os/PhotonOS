@@ -11,6 +11,7 @@
 typedef enum
 {
 	FS_TYPE_FAT,
+	FS_TYPE_DEV,
 	FS_TYPE_NONE
 } FS_TYPE;
 
