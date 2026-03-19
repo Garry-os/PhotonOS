@@ -51,12 +51,22 @@ size_t devRead(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	devfsFile* dev = (devfsFile*)handle->fileInfo;
 
+	if (!dev->ops->read)
+	{
+		return 0;
+	}
+
 	return dev->ops->read(handle, limit, buffer);
 }
 
 size_t devWrite(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	devfsFile* dev = (devfsFile*)handle->fileInfo;
+
+	if (!dev->ops->write)
+	{
+		return 0;
+	}
 
 	return dev->ops->write(handle, limit, buffer);
 }
@@ -66,6 +76,10 @@ void devClose(fileHandle* handle)
 	devfsFile* dev = (devfsFile*)handle->fileInfo;
 	free(dev->name);
 	// TODO: Remove dev from data->dev!
+	if (dev->ops->close)
+	{
+		dev->ops->close(handle);
+	}
 }
 
 void devRegister(devfsData* data, fs_ops_t* ops, const char* name)

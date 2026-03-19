@@ -45,18 +45,33 @@ fileHandle* fsOpen(const char* path)
 
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer)
 {
+	if (!handle->ops->read)
+	{
+		return 0;
+	}
+
 	size_t bytesCount = handle->ops->read(handle, limit, buffer);
 	return bytesCount;
 }
 
 size_t fsWrite(fileHandle* handle, size_t limit, void* buffer)
 {
+	if (!handle->ops->write)
+	{
+		return 0;
+	}
+
 	size_t bytesCount = handle->ops->write(handle, limit, buffer);
 	return bytesCount;
 }
 
 size_t fsGetFileSize(fileHandle* handle)
 {
+	if (!handle->ops->getFileSize)
+	{
+		return 0;
+	}
+
 	return handle->ops->getFileSize(handle);
 }
 
@@ -77,12 +92,21 @@ size_t fsSeek(fileHandle* handle, int offset, int whence)
 		target += fsGetFileSize(handle);
 	}
 
-	size_t result = handle->ops->seek(handle, target);
+	size_t result = target - offset;
+	if (handle->ops->seek)
+	{
+		result = handle->ops->seek(handle, target);
+	}
 	return result;
 }
 
 dirent64* fsReaddir(fileHandle* handle, dirent64* dir)
 {
+	if (!handle->ops->readdir)
+	{
+		return NULL;
+	}
+
 	bool success = handle->ops->readdir(handle, (uint8_t*)dir->name);
 	if (!success)
 	{
