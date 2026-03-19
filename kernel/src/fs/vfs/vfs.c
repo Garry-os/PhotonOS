@@ -22,14 +22,17 @@ fileHandle* fsOpen(const char* path)
 		strcpy(handle->path, path);
 		handle->mnt = mnt;
 
-		char* relPath = fsGetRelativePath(mnt, path);
-		size_t result = mnt->ops->open(handle, relPath);
-		if (result != 0)
+		if (handle->ops->open)
 		{
-			dbg_printf("[VFS] Failed to open file: %s\n", path);
-			free(handle->path);
-			free(handle);
-			return NULL;
+			char* relPath = fsGetRelativePath(mnt, path);
+			size_t result = mnt->ops->open(handle, relPath);
+			if (result != 0)
+			{
+				dbg_printf("[VFS] Failed to open file: %s, return code: %d\n", path, result);
+				free(handle->path);
+				free(handle);
+				return NULL;
+			}
 		}
 	}
 	else
@@ -43,6 +46,12 @@ fileHandle* fsOpen(const char* path)
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer)
 {
 	size_t bytesCount = handle->ops->read(handle, limit, buffer);
+	return bytesCount;
+}
+
+size_t fsWrite(fileHandle* handle, size_t limit, void* buffer)
+{
+	size_t bytesCount = handle->ops->write(handle, limit, buffer);
 	return bytesCount;
 }
 

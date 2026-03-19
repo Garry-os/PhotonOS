@@ -7,6 +7,7 @@
 #include <utils/string.h>
 #include <utils/memory.h>
 #include <fat32/fat32.h>
+#include <dev/dev.h>
 #include <qemu/print.h>
 
 // Src can be NULL if mounting a virtual FS (e.g /dev)
@@ -30,7 +31,7 @@ mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix)
 	else if (fsType == FS_TYPE_DEV)
 	{
 		newMnt->fsType = FS_TYPE_DEV;
-
+		success = devMount(newMnt);
 	}
 	else
 	{

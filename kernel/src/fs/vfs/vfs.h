@@ -25,6 +25,8 @@ typedef struct
 	void (*close)(fileHandle* handle);
 
 	size_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
+	size_t (*write)(fileHandle* handle, uint32_t limit, void* buffer);
+
 	size_t (*getFileSize)(fileHandle* handle);
 	size_t (*seek)(fileHandle* handle, int offset);
 	bool   (*readdir)(fileHandle* handle, uint8_t* buffer);
@@ -58,6 +60,8 @@ struct fileHandle
 fileHandle* fsOpen(const char* path);
 
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer);
+size_t fsWrite(fileHandle* handle, size_t limit, void* buffer);
+
 size_t fsGetFileSize(fileHandle* handle);
 size_t fsSeek(fileHandle* handle, int offset, int whence);
 dirent64* fsReaddir(fileHandle* handle, dirent64* dir);

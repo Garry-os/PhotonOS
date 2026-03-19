@@ -68,7 +68,7 @@ bool MBR_Parse(blockDevice* disk)
 			// Valid entry
 			// Create new block device
 			blockDevice* newBlock = (blockDevice*)malloc(sizeof(blockDevice));
-			memset(newBlock, 0, sizeof(newBlock));
+			memset(newBlock, 0, sizeof(blockDevice));
 			newBlock->parent = disk;
 			newBlock->lbaStart = entry.lbaStart;
 			newBlock->read = MBR_ReadBlock;

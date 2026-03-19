@@ -7,8 +7,8 @@
 
 fs_ops_t devOps = {
 	.open = devOpen,
-	.close = 0,
-
+	.close = devClose,
+	.write = devWrite,
 	.read = devRead,
 	.getFileSize = 0,
 	.seek = 0,

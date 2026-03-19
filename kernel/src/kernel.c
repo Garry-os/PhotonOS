@@ -21,6 +21,7 @@
 #include <pci/pci.h>
 #include <storage/block.h>
 #include <utils/memory.h>
+#include <utils/string.h>
 #include <syscalls.h>
 #include <vfs/vfs.h>
 #include <loader/elf.h>
@@ -73,6 +74,9 @@ void start(void)
 		current = current->next;
 	}
 
+	// Mount essential stuff
+	fsMount(NULL, FS_TYPE_DEV, "/dev/");
+
 	// Enumerate over block devices
 	blockDevice* target = firstBlock;
 
@@ -94,8 +98,14 @@ void start(void)
 
 	// Load in an ELF file
 	task_t* task = elfLoad("/test");
-	
+
 	task->status = TASK_STATE_READY;
+
+	// Write to the stdout
+	char* string = "Hello World from stdout!\n";
+	fileHandle* out = fsOpen("/dev/stdout");
+	fsWrite(out, strlen(string), (void*)string);
+	fsClose(out);
 
 	while (1)
 	{
