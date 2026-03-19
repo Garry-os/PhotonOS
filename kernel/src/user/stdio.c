@@ -4,6 +4,7 @@
 #include <console.h>
 #include <qemu/print.h>
 #include <vfs/vfs.h>
+#include <lock.h>
 
 size_t stdioRead(fileHandle* handle, uint32_t limit, void* buffer)
 {
@@ -15,10 +16,13 @@ size_t stdioWrite(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	// Write to the console
 	char* cBuffer = (char*)buffer;
+
+	lockAcquire();
 	for (uint32_t i = 0; i < limit; i++)
 	{
 		putc(cBuffer[i]);
 	}
+	lockRelease();
 
 	return limit;
 }

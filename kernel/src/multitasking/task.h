@@ -3,8 +3,10 @@
 #include <x86_64/cpu.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <vfs/vfs.h>
 
 #define KERNEL_TASK_ID 0
+#define MAX_TASK_FDS 32
 
 extern bool taskInitialized;
 extern bool schedulerReady;
@@ -31,6 +33,9 @@ typedef struct task
 	uint64_t* pd;
 	uint64_t rsp0;
 	bool isKernelTask;
+
+	// Unix
+	fileHandle* fds[MAX_TASK_FDS];
 } task_t;
 
 extern task_t* firstTask;

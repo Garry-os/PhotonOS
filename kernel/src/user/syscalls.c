@@ -12,17 +12,6 @@
 static uint64_t syscallsHandler[MAX_SYSCALLS];
 static int syscallsCnt = 0;
 
-// Test registering a syscall
-void syscallTest(uint64_t rdi)
-{
-	dbg_printf("[Syscall] Read! RDI: %d\n", rdi);
-}
-
-void syscallRegRead()
-{
-	registerSyscall(0, syscallTest);
-}
-
 // Syscalls arguments (6 arguments)
 typedef uint64_t (*SyscallArgs)(uint64_t arg1, uint64_t arg2, uint64_t arg3, 
 		uint64_t arg4, uint64_t arg5, uint64_t arg6);
@@ -66,7 +55,9 @@ void InitSyscall()
 	// Register the syscall handler
 	ISR_RegisterHandler(0x80, syscallHandler);
 
-	syscallRegRead();
+	// Register syscalls
+	// FS
+	SyscallRegisterFs();
 
 	dbg_printf("[Syscall] All syscalls are registered.\n");
 }

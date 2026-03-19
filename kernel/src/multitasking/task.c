@@ -65,6 +65,10 @@ task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 	task->rsp0 = (uint64_t)AllocateStack();
 	task->isKernelTask = isKernelTask;
 
+	// Setup fds
+	task->fds[0] = fsOpen("/dev/stdin");
+	task->fds[1] = fsOpen("/dev/stdout");
+	task->fds[2] = fsOpen("/dev/stderr");
 
 	return task;
 }
