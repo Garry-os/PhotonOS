@@ -1,4 +1,5 @@
 #pragma once
+#include <user/uapi.h>
 
 void registerSyscall(int num, void* entry);
 

@@ -7,7 +7,7 @@
 #include <qemu/print.h>
 
 #define SYSCALL_WRITE 1
-size_t sys_write(int fd, const char* buffer, size_t count)
+ssize_t sys_write(int fd, const char* buffer, size_t count)
 {
 	if (count == 0)
 	{
@@ -18,8 +18,7 @@ size_t sys_write(int fd, const char* buffer, size_t count)
 
 	if (!handle)
 	{
-		// TODO: Implement UNIX error codes
-		return 0;
+		return -EBADF;
 	}
 
 	return fsWrite(handle, count, buffer);

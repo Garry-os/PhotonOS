@@ -13,7 +13,7 @@ static uint64_t syscallsHandler[MAX_SYSCALLS];
 static int syscallsCnt = 0;
 
 // Syscalls arguments (6 arguments)
-typedef uint64_t (*SyscallArgs)(uint64_t arg1, uint64_t arg2, uint64_t arg3, 
+typedef ssize_t (*SyscallArgs)(uint64_t arg1, uint64_t arg2, uint64_t arg3, 
 		uint64_t arg4, uint64_t arg5, uint64_t arg6);
 // Syscall int 0x80 handler
 void syscallHandler(cpu_registers_t* cpu)
