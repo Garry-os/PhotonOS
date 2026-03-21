@@ -8,7 +8,7 @@
 
 mountpoint_t* firstMount = NULL;
 
-fileHandle* fsOpen(const char* path)
+ssize_t fsOpen(const char* path, fileHandle** out)
 {
 	mountpoint_t* mnt = fsFindMnt(path);
 	fileHandle* handle = (fileHandle*)malloc(sizeof(fileHandle));
@@ -25,22 +25,25 @@ fileHandle* fsOpen(const char* path)
 		if (handle->ops->open)
 		{
 			char* relPath = fsGetRelativePath(mnt, path);
-			size_t result = mnt->ops->open(handle, relPath);
-			if (result != 0)
+			ssize_t result = mnt->ops->open(handle, relPath);
+			if (result < 0)
 			{
 				dbg_printf("[VFS] Failed to open file: %s, return code: %d\n", path, result);
 				free(handle->path);
 				free(handle);
-				return NULL;
+				*out = NULL;
+				return result;
 			}
 		}
 	}
 	else
 	{
-		return NULL;
+		*out = NULL;
+		return -ENOENT;
 	}
 
-	return handle;
+	*out = handle;
+	return 0;
 }
 
 size_t fsRead(fileHandle* handle, size_t limit, void* buffer)

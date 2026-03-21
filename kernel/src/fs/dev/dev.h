@@ -19,7 +19,7 @@ typedef struct
 
 void devRegisterVfs(mountpoint_t* mnt);
 
-size_t devOpen(fileHandle* handle, const char* path);
+ssize_t devOpen(fileHandle* handle, const char* path);
 
 size_t devRead(fileHandle* handle, uint32_t limit, void* buffer);
 size_t devWrite(fileHandle* handle, uint32_t limit, void* buffer);

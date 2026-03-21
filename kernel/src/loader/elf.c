@@ -41,8 +41,8 @@ bool elfVerify(Elf64_Ehdr* header)
 
 task_t* elfLoad(char* filePath)
 {
-	fileHandle* file = fsOpen(filePath);
-	if (!file)
+	fileHandle* file = NULL;
+	if (fsOpen(filePath, &file) != 0)
 	{
 		return NULL;
 	}

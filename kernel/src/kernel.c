@@ -103,9 +103,10 @@ void start(void)
 
 	// Write to the stdout
 	char* string = "Hello World from stdout!\n";
-	fileHandle* out = fsOpen("/dev/stdout");
-	fsWrite(out, strlen(string), (void*)string);
-	fsClose(out);
+	fileHandle* handle = NULL;
+	fsOpen("/dev/stdout", &handle);
+	fsWrite(handle, strlen(string), (void*)string);
+	fsClose(handle);
 
 	while (1)
 	{

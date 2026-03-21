@@ -9,7 +9,7 @@
 
 extern fs_ops_t stdioOps;
 
-size_t devOpen(fileHandle* handle, const char* path)
+ssize_t devOpen(fileHandle* handle, const char* path)
 {
 	// Skip leading slash
 	if (path[0] == '/')
@@ -33,7 +33,7 @@ size_t devOpen(fileHandle* handle, const char* path)
 	if (!dev)
 	{
 		dbg_printf("[Dev] Device not found: %s\n", path);
-		return 1;
+		return -ENOENT;
 	}
 
 	handle->fileInfo = (void*)dev;

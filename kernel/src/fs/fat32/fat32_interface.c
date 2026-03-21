@@ -4,8 +4,9 @@
 //
 #include "fat32.h"
 #include <qemu/print.h>
+#include <user/uapi.h>
 
-size_t fat32_vfs_open(fileHandle* handle, const char* path);
+ssize_t fat32_vfs_open(fileHandle* handle, const char* path);
 void fat32_vfs_close(fileHandle* handle);
 
 size_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer);
@@ -28,7 +29,7 @@ void fat32_registerVFS(mountpoint_t* mnt)
 	mnt->ops = &fat32_ops;
 }
 
-size_t fat32_vfs_open(fileHandle* handle, const char* path)
+ssize_t fat32_vfs_open(fileHandle* handle, const char* path)
 {
 	fat32Handle* fatHandle = NULL;
 	fat32_data* data = (fat32_data*)handle->mnt->fsData;
@@ -37,7 +38,7 @@ size_t fat32_vfs_open(fileHandle* handle, const char* path)
 	
 	if (!fatHandle)
 	{
-		return 1;
+		return -ENOENT;
 	}
 
 	handle->fileInfo = (void*)fatHandle;

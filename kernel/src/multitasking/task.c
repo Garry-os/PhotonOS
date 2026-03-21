@@ -66,9 +66,9 @@ task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 	task->isKernelTask = isKernelTask;
 
 	// Setup fds
-	task->fds[0] = fsOpen("/dev/stdin");
-	task->fds[1] = fsOpen("/dev/stdout");
-	task->fds[2] = fsOpen("/dev/stderr");
+	fsOpen("/dev/stdin", &task->fds[0]);
+	fsOpen("/dev/stdout", &task->fds[1]);
+	fsOpen("/dev/stderr", &task->fds[2]);
 
 	return task;
 }
