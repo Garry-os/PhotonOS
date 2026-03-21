@@ -145,7 +145,7 @@ uint32_t fat32_read(fat32_data* data, fat32Handle* handle, uint32_t limit, void*
 	}
 
 	uint32_t sectorOffset = handle->clusterOffset / SECTOR_SIZE;
-	handle->currentSector = sectorOffset;
+	handle->currentSector = sectorOffset % data->bootSector.data.sectorsPerCluster;
 	
 	while (remaining > 0)
 	{
