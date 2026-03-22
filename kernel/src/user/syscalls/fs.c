@@ -14,7 +14,7 @@ ssize_t sys_write(int fd, const char* buffer, size_t count)
 		return 0;
 	}
 
-	fileHandle* handle = currentTask->fds[fd];
+	fileHandle* handle = fsGetFd(currentTask, fd);
 
 	if (!handle)
 	{
@@ -31,26 +31,14 @@ ssize_t sys_open(const char* filename, int flags, int mode)
 	(void)flags;
 	(void)mode;
 
-	// TODO: VFS should do this!!!!
-	int fd = 0;
-	for (int i = 0; i < 32; i++)
-	{
-		if (currentTask->fds[i] == 0)
-		{
-			fd = i;
-			break;
-		}
-	}
-
 	fileHandle* handle = NULL;
 	ssize_t result = fsOpen(filename, &handle);
-	if (result != 0)
+	if (RET_ERR(result))
 	{
 		return result;
 	}
 
-	currentTask->fds[fd] = handle;
-	return fd;
+	return result;
 }
 
 void SyscallRegisterFs()

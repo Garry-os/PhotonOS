@@ -5,6 +5,7 @@
 #include <malloc.h>
 #include <utils/string.h>
 #include <qemu/print.h>
+#include <task.h>
 
 mountpoint_t* firstMount = NULL;
 
@@ -42,7 +43,16 @@ ssize_t fsOpen(const char* path, fileHandle** out)
 		return -ENOENT;
 	}
 
+	// Assign fd
+	int fd = fsFindFreeFd(currentTask);
+	if (fd < 0)
+	{
+		return -EMFILE;
+	}
+
+	fsRegisterFd(currentTask, fd, handle);
 	*out = handle;
+
 	return 0;
 }
 

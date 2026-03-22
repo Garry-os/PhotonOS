@@ -5,6 +5,9 @@
 #include <uapi.h>
 #include <lock.h>
 
+struct task;
+typedef struct task task_t;
+
 #define VFS_MAX_PATH_LEN 128
 
 // FS types
@@ -48,6 +51,7 @@ extern mountpoint_t* firstMount;
 
 struct fileHandle
 {
+	int fd;
 	char* path;
 
 	fs_ops_t* ops;
@@ -77,4 +81,10 @@ char* fsGetRelativePath(mountpoint_t* mnt, const char* path);
 
 // vfs_fs.c
 bool isFat(blockDevice* dev);
+
+// vfs_fd.c
+int fsFindFreeFd(task_t* task);
+void fsRegisterFd(task_t* task, int fd, fileHandle* handle);
+fileHandle* fsGetFd(task_t* task, int fd);
+
 
