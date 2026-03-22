@@ -133,6 +133,7 @@ isr_common:
 	mov ss, ax
 
 	mov rdi, rsp ;; Pass the stack to C handler
+	cld ;; Clear direction flag
 	call interrupt_handler
 	restore_context ; Restore registers
 	add rsp, 16 ; Pop error code & interrupt number
