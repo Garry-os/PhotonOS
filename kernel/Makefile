@@ -28,12 +28,15 @@ all: kernel
 
 kernel: $(BUILD_DIR)/kernel/kernel.bin
 $(BUILD_DIR)/kernel/kernel.bin: $(C_OBJECTS) $(ASM_OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	@ echo "LD" $@
+	@ $(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BUILD_DIR)/kernel/%.asm_o: src/%.asm
-	$(ASM) $(ASMFLAGS) -o $@ $<
+	@ echo "AS" $<
+	@ $(ASM) $(ASMFLAGS) -o $@ $<
 
 $(BUILD_DIR)/kernel/%.o: src/%.c $(C_HEADERS)
 	@ mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@ echo "CC" $<
+	@ $(CC) $(CFLAGS) -c -o $@ $<
 
