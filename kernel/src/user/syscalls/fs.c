@@ -54,10 +54,26 @@ ssize_t sys_open(const char* filename, int flags, int mode)
 	return result;
 }
 
+#define SYS_CLOSE 3
+ssize_t sys_close(int fd)
+{
+	fileHandle* handle = fsGetFd(currentTask, fd);
+	if (!handle)
+	{
+		return -EBADF;
+	}
+
+	fsClose(handle);
+	currentTask->fds[fd] = 0; // Free slot
+
+	return 0;
+}
+
 void SyscallRegisterFs()
 {
 	registerSyscall(SYS_READ, sys_read);
 	registerSyscall(SYS_WRITE, sys_write);
 	registerSyscall(SYS_OPEN, sys_open);
+	registerSyscall(SYS_CLOSE, sys_close);
 }
 

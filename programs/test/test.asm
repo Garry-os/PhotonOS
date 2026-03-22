@@ -28,6 +28,11 @@ _start:
 	mov rdx, rbx
 	int 0x80
 
+	;; Close the file
+	mov rax, 3
+	mov rdi, [fd_out]
+	int 0x80
+
 	jmp $
 
 filename: db "/hello.txt", 0
