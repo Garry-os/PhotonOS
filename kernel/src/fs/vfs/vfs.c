@@ -51,30 +51,33 @@ ssize_t fsOpen(const char* path, fileHandle** out)
 	}
 
 	fsRegisterFd(currentTask, fd, handle);
+
+	handle->free = false;
+	handle->fd = fd;
 	*out = handle;
 
-	return 0;
+	return fd;
 }
 
-size_t fsRead(fileHandle* handle, size_t limit, void* buffer)
+ssize_t fsRead(fileHandle* handle, size_t limit, void* buffer)
 {
 	if (!handle->ops->read)
 	{
-		return 0;
+		return -EBADF;
 	}
 
-	size_t bytesCount = handle->ops->read(handle, limit, buffer);
+	ssize_t bytesCount = handle->ops->read(handle, limit, buffer);
 	return bytesCount;
 }
 
-size_t fsWrite(fileHandle* handle, size_t limit, void* buffer)
+ssize_t fsWrite(fileHandle* handle, size_t limit, void* buffer)
 {
 	if (!handle->ops->write)
 	{
-		return 0;
+		return -EBADF;
 	}
 
-	size_t bytesCount = handle->ops->write(handle, limit, buffer);
+	ssize_t bytesCount = handle->ops->write(handle, limit, buffer);
 	return bytesCount;
 }
 

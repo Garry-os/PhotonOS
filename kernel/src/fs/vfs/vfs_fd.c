@@ -3,6 +3,7 @@
 //
 #include "vfs.h"
 #include <task.h>
+#include <qemu/print.h>
 
 int fsFindFreeFd(task_t* task)
 {
@@ -10,9 +11,10 @@ int fsFindFreeFd(task_t* task)
 
 	for (int i = 0; i < MAX_TASK_FDS; i++)
 	{
-		if (task->fds[i] == 0)
+		if (!task->fds[i])
 		{
 			fd = i;
+			break;
 		}
 	}
 

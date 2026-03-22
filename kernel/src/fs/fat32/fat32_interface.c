@@ -9,7 +9,7 @@
 ssize_t fat32_vfs_open(fileHandle* handle, const char* path);
 void fat32_vfs_close(fileHandle* handle);
 
-size_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer);
+ssize_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer);
 size_t fat32_vfs_getFileSize(fileHandle* handle);
 size_t fat32_vfs_seek(fileHandle* handle, int offset);
 bool fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer);
@@ -54,14 +54,14 @@ void fat32_vfs_close(fileHandle* handle)
 	fat32_close(data, fatHandle);
 }
 
-size_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer)
+ssize_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	fat32Handle* fatHandle = (fat32Handle*)handle->fileInfo;
 	fat32_data* data = (fat32_data*)handle->mnt->fsData;
 
 	size_t bytesRead = fat32_read(data, fatHandle, limit, buffer);
 	handle->current += bytesRead;
-	return bytesRead;
+	return (ssize_t)bytesRead;
 }
 
 size_t fat32_vfs_getFileSize(fileHandle* handle)

@@ -24,8 +24,7 @@ void syscallHandler(cpu_registers_t* cpu)
 		// Evoke the syscall
 		uint64_t ret = ((SyscallArgs)(syscallsHandler[syscallNum]))(cpu->rdi, cpu->rsi, cpu->rdx, 
 			cpu->r10, cpu->r8, cpu->r9);
-		// TODO
-		(void)ret;
+		cpu->rax = ret;
 	}
 }
 

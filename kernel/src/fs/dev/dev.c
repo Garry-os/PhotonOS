@@ -47,25 +47,25 @@ ssize_t devOpen(fileHandle* handle, const char* path)
 	return result;
 }
 
-size_t devRead(fileHandle* handle, uint32_t limit, void* buffer)
+ssize_t devRead(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	devfsFile* dev = (devfsFile*)handle->fileInfo;
 
 	if (!dev->ops->read)
 	{
-		return 0;
+		return -EBADF;
 	}
 
 	return dev->ops->read(handle, limit, buffer);
 }
 
-size_t devWrite(fileHandle* handle, uint32_t limit, void* buffer)
+ssize_t devWrite(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	devfsFile* dev = (devfsFile*)handle->fileInfo;
 
 	if (!dev->ops->write)
 	{
-		return 0;
+		return -EBADF;
 	}
 
 	return dev->ops->write(handle, limit, buffer);

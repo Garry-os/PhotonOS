@@ -27,8 +27,8 @@ typedef struct
 	ssize_t (*open)(fileHandle* handle, const char* path);
 	void (*close)(fileHandle* handle);
 
-	size_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
-	size_t (*write)(fileHandle* handle, uint32_t limit, void* buffer);
+	ssize_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
+	ssize_t (*write)(fileHandle* handle, uint32_t limit, void* buffer);
 
 	size_t (*getFileSize)(fileHandle* handle);
 	size_t (*seek)(fileHandle* handle, int offset);
@@ -59,12 +59,14 @@ struct fileHandle
 	mountpoint_t* mnt;
 	size_t current; // Current reading offset
 	void* fileInfo;
+
+	bool free;
 };
 
 ssize_t fsOpen(const char* path, fileHandle** out);
 
-size_t fsRead(fileHandle* handle, size_t limit, void* buffer);
-size_t fsWrite(fileHandle* handle, size_t limit, void* buffer);
+ssize_t fsRead(fileHandle* handle, size_t limit, void* buffer);
+ssize_t fsWrite(fileHandle* handle, size_t limit, void* buffer);
 
 size_t fsGetFileSize(fileHandle* handle);
 size_t fsSeek(fileHandle* handle, int offset, int whence);

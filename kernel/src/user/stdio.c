@@ -6,13 +6,13 @@
 #include <vfs/vfs.h>
 #include <lock.h>
 
-size_t stdioRead(fileHandle* handle, uint32_t limit, void* buffer)
+ssize_t stdioRead(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	dbg_printf("[Stdio] Implement read!\n");
 	return 0;
 }
 
-size_t stdioWrite(fileHandle* handle, uint32_t limit, void* buffer)
+ssize_t stdioWrite(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	// Write to the console
 	char* cBuffer = (char*)buffer;
