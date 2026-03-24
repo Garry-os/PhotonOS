@@ -1,17 +1,25 @@
+//
+// IRQ scheduler lock
+// to prevent race conditions
+//
 #include "lock.h"
+#include <stdint.h>
 
-int irq_disable_cnt = 0;
-
-void lockAcquire()
+void lockAcquire(lock_t* lock)
 {
+	// Get current interrupt state
+	uint64_t rflags = 0;
+	asm volatile ("pushfq; pop %0" : "=r"(rflags));
+	*lock = (rflags & (1 << 9)) != 0;
+
+	// Disable IRQ
 	asm volatile ("cli");
-	irq_disable_cnt++;
 }
 
-void lockRelease()
+void lockRelease(lock_t* lock)
 {
-	irq_disable_cnt--;
-	if (irq_disable_cnt == 0)
+	// Check for interrupt flag
+	if (!lock)
 	{
 		asm volatile ("sti");
 	}

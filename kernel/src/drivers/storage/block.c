@@ -7,12 +7,13 @@
 #include <lock.h>
 
 blockDevice* firstBlock;
+lock_t blockLock;
 
 void blockRegister(blockDevice* block)
 {
-	lockAcquire();
+	lockAcquire(&blockLock);
 	LL_Add((void**)&firstBlock, block);
-	lockRelease();
+	lockRelease(&blockLock);
 
 	if (block->type == DEV_TYPE_DISK)
 	{

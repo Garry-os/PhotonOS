@@ -87,6 +87,8 @@ uint64_t FindFreeRegion(size_t pages)
 	return 0;
 }
 
+lock_t pmm_lock;
+
 // Return an avaliable address
 void* pmm_Allocate(size_t pages)
 {
@@ -97,9 +99,9 @@ void* pmm_Allocate(size_t pages)
 		panic();
 	}
 
-	lockAcquire();
+	lockAcquire(&pmm_lock);
 	LockPages((void*)(region * PAGE_SIZE), pages);
-	lockRelease();
+	lockRelease(&pmm_lock);
 
 	return (void*)(region * PAGE_SIZE);
 }
@@ -126,11 +128,11 @@ void FreePage(void* address)
 
 void pmm_Free(void* address, size_t pages)
 {
-	lockAcquire();
+	lockAcquire(&pmm_lock);
 	for (size_t i = 0; i < pages; i++)
 	{
 		FreePage((void*)((uint64_t)address + (i * PAGE_SIZE)));
 	}
-	lockRelease();
+	lockRelease(&pmm_lock);
 }
 

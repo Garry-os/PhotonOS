@@ -87,18 +87,13 @@ task_t* elfLoad(char* filePath)
 				// Allocate virtual memory
 				size_t pages = (phdr->p_memsz + PAGE_SIZE - 1) / PAGE_SIZE; // Round up
 				for (size_t j = 0; j < pages; j++)
-					vmm_MapPage((void*)(phdr->p_vaddr + j), pmm_Allocate(1), PF_USER);
+					vmm_MapPage((void*)(phdr->p_vaddr + j * PAGE_SIZE), pmm_Allocate(1), PF_USER);
 
 				// Copy segment data
 				fsSeek(file, phdr->p_offset, SEEK_SET);
 				size_t size = phdr->p_filesz;
 				fsRead(file, size, (void*)phdr->p_vaddr);
-				
-				// Zeros out the BSS
-				if (phdr->p_memsz > phdr->p_filesz)
-				{
-					memset((void*)phdr->p_vaddr + phdr->p_filesz, 0, phdr->p_memsz - phdr->p_filesz);
-				}
+				memset((void*)phdr->p_vaddr + phdr->p_filesz, 0, phdr->p_memsz - phdr->p_filesz);
 
 				break;
 		}

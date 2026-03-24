@@ -29,7 +29,7 @@ typedef struct
 	uint64_t rflags;
 	uint64_t rsp;
 	uint64_t ss;
-} cpu_registers_t;
+} __attribute__((packed)) cpu_registers_t;
 
 void x86_outb(uint16_t port, uint8_t value);
 uint8_t x86_inb(uint16_t port);

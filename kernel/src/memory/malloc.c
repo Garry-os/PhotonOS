@@ -54,6 +54,8 @@ size_t align(size_t size)
 	return size;
 }
 
+lock_t malloc_lock;
+
 mNode_t* splitNode(mNode_t* node, size_t size)
 {
 	if (size < HEAP_ALIGNMENT)
@@ -62,7 +64,7 @@ mNode_t* splitNode(mNode_t* node, size_t size)
 		return NULL;
 	}
 
-	lockAcquire();
+	lockAcquire(&malloc_lock);
 
 	// Setup the new node
 	mNode_t* newNode = (mNode_t*)((void*)node + size + sizeof(mNode_t));
@@ -81,7 +83,7 @@ mNode_t* splitNode(mNode_t* node, size_t size)
 		lastNode = newNode;
 	}
 	
-	lockRelease();
+	lockRelease(&malloc_lock);
 
 	return newNode;
 }
@@ -93,7 +95,7 @@ void expandHeap(size_t size)
 {
 	dbg_printf("[Heap] Expanding heap!\n");
 
-	lockAcquire();
+	lockAcquire(&malloc_lock);
 	size = align(size);
 
 	size_t pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
@@ -107,7 +109,7 @@ void expandHeap(size_t size)
 	// Update last node
 	lastNode->next = newNode;
 	lastNode = newNode;
-	lockRelease();
+	lockRelease(&malloc_lock);
 
 	// Combine two nodes if can
 	// TODO
@@ -131,7 +133,7 @@ void combineForward(mNode_t* node)
 		return;
 	}
 
-	lockAcquire();
+	lockAcquire(&malloc_lock);
 
 	if (node->next == lastNode)
 	{
@@ -146,7 +148,7 @@ void combineForward(mNode_t* node)
 	node->size = node->size + node->next->size + sizeof(mNode_t);
 	node->next = node->next->next;
 
-	lockRelease();
+	lockRelease(&malloc_lock);
 }
 
 // Combine two nodes backward
@@ -213,13 +215,13 @@ void free(void* address)
 		return;
 	}
 
-	lockAcquire();
+	lockAcquire(&malloc_lock);
 
 	mNode_t* node = (mNode_t*)address - 1;
 	node->free = true;
 	combineForward(node);
 	combineBackward(node);
 	
-	lockRelease();
+	lockRelease(&malloc_lock);
 }
 

@@ -4,6 +4,7 @@
 #include <lock.h>
 
 #define QEMU_SERIAL_PORT 0xE9
+lock_t serialLock;
 
 void dbg_putc(char c)
 {
@@ -21,7 +22,7 @@ void dbg_puts(const char* str)
 
 void dbg_printf(const char* fmt, ...)
 {
-	lockAcquire();
+	lockAcquire(&serialLock);
 	va_list args;
 	va_start(args, fmt);
 
@@ -29,6 +30,6 @@ void dbg_printf(const char* fmt, ...)
 
 	va_end(args);
 
-	lockRelease();
+	lockRelease(&serialLock);
 }
 

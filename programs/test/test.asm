@@ -12,7 +12,7 @@ _start:
 
 	mov [fd_out], rax
 
-	;; Read
+	; ;; Read
 	mov rax, 0
 	mov rdi, [fd_out]
 	mov rsi, buffer
@@ -27,11 +27,11 @@ _start:
 	mov rsi, buffer
 	mov rdx, rbx
 	int 0x80
-
-	;; Close the file
-	mov rax, 3
-	mov rdi, [fd_out]
-	int 0x80
+	;
+	; ;; Close the file
+	; mov rax, 3
+	; mov rdi, [fd_out]
+	; int 0x80
 
 	jmp $
 

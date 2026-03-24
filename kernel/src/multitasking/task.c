@@ -18,12 +18,14 @@ bool schedulerReady = false;
 // Avoid kernel task id
 size_t freeId = 1;
 
+lock_t taskLock;
+
 task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 {
 	task_t* task = (task_t*)malloc(sizeof(task_t));
 	memset(task, 0, sizeof(task_t));
 
-	lockAcquire();
+	lockAcquire(&taskLock);
 
 	// Find the next linked list element
 	task_t* index =	firstTask;
@@ -38,7 +40,7 @@ task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 	}
 
 	index->next = task;
-	lockRelease();
+	lockRelease(&taskLock);
 
 	task->id = freeId++;
 	task->status = TASK_STATE_CREATED;
@@ -75,7 +77,7 @@ task_t* TaskCreate(uint64_t entry, uint64_t* pd, bool isKernelTask)
 
 task_t* TaskGet(size_t id)
 {
-	lockAcquire();
+	lockAcquire(&taskLock);
 
 	task_t* index = firstTask;
 	while (index)
@@ -88,7 +90,7 @@ task_t* TaskGet(size_t id)
 		index = index->next;
 	}
 
-	lockRelease();
+	lockRelease(&taskLock);
 	return index;
 }
 

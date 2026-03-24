@@ -10,12 +10,14 @@
 #include <dev/dev.h>
 #include <qemu/print.h>
 
+lock_t mntLock;
+
 // Src can be NULL if mounting a virtual FS (e.g /dev)
 mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix)
 {
-	lockAcquire();
+	lockAcquire(&mntLock);
 	mountpoint_t* newMnt = LL_Allocate((void**)&firstMount, sizeof(mountpoint_t));
-	lockRelease();
+	lockRelease(&mntLock);
 
 	// Copy over the mount info
 	strcpy(newMnt->prefix, prefix); // Copy over the mount prefix
