@@ -11,7 +11,7 @@ bool fat32_findEntry(fat32_data* data, fat32Handle* handle, const char* name, fa
 	uint8_t nameBuffer[256];
 
 	fat32DirEntry entry;
-	while (fat32_readLFN(data, handle, nameBuffer, &entry))
+	while (fat32_readLFN(data, handle, nameBuffer, &entry) == 0)
 	{
 		if (strcmp((char*)nameBuffer, name) == 0)
 		{

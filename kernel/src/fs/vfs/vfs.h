@@ -30,9 +30,9 @@ typedef struct
 	ssize_t (*read)(fileHandle* handle, uint32_t limit, void* buffer);
 	ssize_t (*write)(fileHandle* handle, uint32_t limit, void* buffer);
 
-	size_t (*getFileSize)(fileHandle* handle);
-	size_t (*seek)(fileHandle* handle, int offset);
-	bool   (*readdir)(fileHandle* handle, uint8_t* buffer);
+	ssize_t (*getFileSize)(fileHandle* handle);
+	ssize_t (*seek)(fileHandle* handle, int offset);
+	ssize_t (*readdir)(fileHandle* handle, uint8_t* buffer);
 } fs_ops_t;
 
 typedef struct mountpoint
@@ -68,9 +68,9 @@ ssize_t fsOpen(const char* path, fileHandle** out);
 ssize_t fsRead(fileHandle* handle, size_t limit, void* buffer);
 ssize_t fsWrite(fileHandle* handle, size_t limit, void* buffer);
 
-size_t fsGetFileSize(fileHandle* handle);
-size_t fsSeek(fileHandle* handle, int offset, int whence);
-dirent64* fsReaddir(fileHandle* handle, dirent64* dir);
+ssize_t fsGetFileSize(fileHandle* handle);
+ssize_t fsSeek(fileHandle* handle, int offset, int whence);
+ssize_t fsReaddir(fileHandle* handle, dirent64* dir);
 
 void fsClose(fileHandle* handle);
 

@@ -10,9 +10,9 @@ ssize_t fat32_vfs_open(fileHandle* handle, const char* path);
 void fat32_vfs_close(fileHandle* handle);
 
 ssize_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer);
-size_t fat32_vfs_getFileSize(fileHandle* handle);
-size_t fat32_vfs_seek(fileHandle* handle, int offset);
-bool fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer);
+ssize_t fat32_vfs_getFileSize(fileHandle* handle);
+ssize_t fat32_vfs_seek(fileHandle* handle, int offset);
+ssize_t fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer);
 
 fs_ops_t fat32_ops = {
 	.open = fat32_vfs_open,
@@ -64,28 +64,28 @@ ssize_t fat32_vfs_read(fileHandle* handle, uint32_t limit, void* buffer)
 	return (ssize_t)bytesRead;
 }
 
-size_t fat32_vfs_getFileSize(fileHandle* handle)
+ssize_t fat32_vfs_getFileSize(fileHandle* handle)
 {
 	fat32Handle* fatHandle = (fat32Handle*)handle->fileInfo;
 	return (size_t)fatHandle->size;
 }
 
-size_t fat32_vfs_seek(fileHandle* handle, int offset)
+ssize_t fat32_vfs_seek(fileHandle* handle, int offset)
 {
 	fat32Handle* fatHandle = (fat32Handle*)handle->fileInfo;
 	fat32_data* data = (fat32_data*)handle->mnt->fsData;
 
-	size_t bytes = fat32_seek(data, fatHandle, (uint32_t)offset);
+	ssize_t bytes = fat32_seek(data, fatHandle, (uint32_t)offset);
 	return bytes;
 }
 
-bool fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer)
+ssize_t fat32_vfs_readdir(fileHandle* handle, uint8_t* buffer)
 {
 	fat32Handle* fatHandle = (fat32Handle*)handle->fileInfo;
 	fat32_data* data = (fat32_data*)handle->mnt->fsData;
 
-	bool success = fat32_readLFN(data, fatHandle, buffer, NULL);
+	ssize_t result = fat32_readLFN(data, fatHandle, buffer, NULL);
 
-	return success;
+	return result;
 }
 

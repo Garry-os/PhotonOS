@@ -81,7 +81,7 @@ ssize_t fsWrite(fileHandle* handle, size_t limit, void* buffer)
 	return bytesCount;
 }
 
-size_t fsGetFileSize(fileHandle* handle)
+ssize_t fsGetFileSize(fileHandle* handle)
 {
 	if (!handle->ops->getFileSize)
 	{
@@ -92,7 +92,7 @@ size_t fsGetFileSize(fileHandle* handle)
 }
 
 // Return bytes sought
-size_t fsSeek(fileHandle* handle, int offset, int whence)
+ssize_t fsSeek(fileHandle* handle, int offset, int whence)
 {
 	int target = offset;
 	if (whence == SEEK_SET)
@@ -108,33 +108,34 @@ size_t fsSeek(fileHandle* handle, int offset, int whence)
 		target += fsGetFileSize(handle);
 	}
 
-	size_t result = target - offset;
-	if (handle->ops->seek)
+	ssize_t result = 0;
+	if (!handle->ops->seek)
 	{
-		result = handle->ops->seek(handle, target);
+		result = -ESPIPE;
+		goto cleanup;
 	}
+
+	result = handle->ops->seek(handle, target);
+cleanup:
 	return result;
 }
 
-dirent64* fsReaddir(fileHandle* handle, dirent64* dir)
+ssize_t fsReaddir(fileHandle* handle, dirent64* dir)
 {
 	if (!handle->ops->readdir)
 	{
-		return NULL;
+		return -EBADF;
 	}
 
-	bool success = handle->ops->readdir(handle, (uint8_t*)dir->name);
-	if (!success)
-	{
-		return NULL;
-	}
+	ssize_t result = handle->ops->readdir(handle, (uint8_t*)dir->name);
 
-	return dir;
+	return result;
 }
 
 void fsClose(fileHandle* handle)
 {
-	handle->ops->close(handle);
+	if (handle->ops->close)
+		handle->ops->close(handle);
 	free(handle->path);
 	free(handle);
 }

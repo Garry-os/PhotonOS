@@ -8,6 +8,7 @@
 #include <qemu/print.h>
 #include <utils/memory.h>
 #include <utils/math.h>
+#include <user/uapi.h>
 
 // Mount a partition block device
 bool fat32_mount(mountpoint_t* mnt)
@@ -230,8 +231,13 @@ bool fat32_readEntry(fat32_data* data, fat32Handle* handle, fat32DirEntry* entry
 // And copy the names into a buffer
 // buffer must be >= 256
 // entry out is optional, it can be NULL
-bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out)
+ssize_t fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32DirEntry* out)
 {
+	if (!(handle->attributes & FAT_HANDLE_DIR))
+	{
+		return -ENOTDIR;
+	}
+
 	int lfnLast = -1;
 	fat32DirEntry entry;
 	while (fat32_readEntry(data, handle, &entry))
@@ -245,7 +251,7 @@ bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32
 			if (index > FAT32_LFN_MAX_INDEX)
 			{
 				dbg_printf("[FAT32] Invalid LFN index: %d\n", index);
-				return false;
+				return -EIO;
 			}
 
 			// Check if it's the last index
@@ -271,24 +277,29 @@ bool fat32_readLFN(fat32_data* data, fat32Handle* handle, uint8_t* buffer, fat32
 			if (lfnLen < 0)
 			{
 				dbg_printf("[FAT32] Invalid LFN length: %d\n", lfnLen);
-				return false;
+				return -EIO;
 			}
 
 			if (out)
 				*out = entry;
 
-			return true;
+			return 0;
 		}
 	}
 
-	return false;
+	return 1; // End of directories
 }
 
-size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
+ssize_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
 {
 	if (offset > handle->size)
 	{
-		return 0;
+		return -EINVAL;
+	}
+
+	if (handle->attributes & FAT_HANDLE_DIR)
+	{
+		return -EINVAL;
 	}
 
 	if (offset == handle->currentOffset)
@@ -327,7 +338,7 @@ size_t fat32_seek(fat32_data* data, fat32Handle* handle, uint32_t offset)
 		return 0;
 	}
 
-	return offset;
+	return (ssize_t)offset;
 }
 
 
