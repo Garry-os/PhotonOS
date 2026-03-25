@@ -1,6 +1,6 @@
 [bits 64]
 
-
+section .text
 global _start
 _start:
 	;; Open /hello.txt
@@ -27,16 +27,18 @@ _start:
 	mov rsi, buffer
 	mov rdx, rbx
 	int 0x80
-	;
-	; ;; Close the file
-	; mov rax, 3
-	; mov rdi, [fd_out]
-	; int 0x80
+
+	;; Close the file
+	mov rax, 3
+	mov rdi, [fd_out]
+	int 0x80
 
 	jmp $
 
+section .data
 filename: db "/hello.txt", 0
 
+section .bss
 fd_out: resq 1
 buffer: resb 100
 

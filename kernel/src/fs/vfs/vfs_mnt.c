@@ -51,8 +51,10 @@ mountpoint_t* fsMount(blockDevice* src, uint8_t fsType, const char* prefix)
 
 void fsUnmount(mountpoint_t* mnt)
 {
-	(void)mnt;
-	dbg_printf("[VFS] TODO: fsUnmount()\n");
+	// Remove from linked list
+	LL_Delete((void**)&firstMount, mnt);
+
+	// TODO: File system umount
 }
 
 // Returns a mountpoint based on the prefix

@@ -64,3 +64,36 @@ void LL_Add(void** first, void* ptr)
 	target->next = NULL;
 }
 
+void LL_Delete(void** first, void* ptr)
+{
+	LLHeader* clone = (LLHeader*)(*first);
+	LLHeader* current = (LLHeader*)(*first);
+	while (current)
+	{
+		if (current->next && current->next == ptr)
+		{
+			// Found
+			break;
+		}
+
+		current = current->next;
+	}
+
+	if (clone == ptr)
+	{
+		// First ptr is the target
+		// Point the first ptr to the next element
+		*first = clone->next;
+		return;
+	}
+	if (!current)
+	{
+		return;
+	}
+
+	LLHeader* target = current->next;
+	current->next = target->next;
+
+	free(target);
+}
+
