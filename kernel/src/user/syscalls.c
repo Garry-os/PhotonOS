@@ -38,7 +38,7 @@ void registerSyscall(int num, void* entry)
 	}
 
 	// Check for avalibility
-	if (syscallsHandler[num] != NULL)
+	if (syscallsHandler[num] != 0)
 	{
 		dbg_printf("[Syscall] %d is already occupied.\n", num);
 		panic();

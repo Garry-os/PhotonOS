@@ -24,7 +24,7 @@ ssize_t sys_read(int fd, char* buffer, size_t count)
 }
 
 #define SYS_WRITE 1
-ssize_t sys_write(int fd, const char* buffer, size_t count)
+ssize_t sys_write(int fd, char* buffer, size_t count)
 {
 	if (count == 0)
 	{

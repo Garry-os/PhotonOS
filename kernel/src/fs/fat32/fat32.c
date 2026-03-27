@@ -137,7 +137,6 @@ uint32_t fat32_read(fat32_data* data, fat32Handle* handle, uint32_t limit, void*
 	uint8_t* u8Buffer = (uint8_t*)buffer;
 
 	uint32_t remaining = limit;
-	uint32_t clusterOffset = handle->clusterOffset;
 
 	// Directory size is 0 (in some cases)
 	if (!(handle->attributes & FAT_HANDLE_DIR) || ((handle->attributes & FAT_HANDLE_DIR) > 0 && handle->size != 0))

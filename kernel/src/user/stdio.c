@@ -10,6 +10,9 @@ lock_t stdioLock;
 
 ssize_t stdioRead(fileHandle* handle, uint32_t limit, void* buffer)
 {
+	(void)handle;
+	(void)limit;
+	(void)buffer;
 	dbg_printf("[Stdio] Implement read!\n");
 	return 0;
 }
@@ -17,6 +20,8 @@ ssize_t stdioRead(fileHandle* handle, uint32_t limit, void* buffer)
 ssize_t stdioWrite(fileHandle* handle, uint32_t limit, void* buffer)
 {
 	// Write to the console
+	(void)handle;
+	(void)limit;
 	char* cBuffer = (char*)buffer;
 
 	lockAcquire(&stdioLock);
